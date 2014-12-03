@@ -1,3 +1,5 @@
+#include <WebServer.h>
+
 /*
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
@@ -38,19 +40,26 @@ const int hltTemperaturePin = 0;
 const int mashTemperaturePin = 1;
 const int fermenterTemperaturePin = 2;
 
+const double hltDividerResistance = 10000.0;
+const double mashDividerResistance = 10000.0;
+const double fermenterDividerResistance = 10000.0;
+
 
 
 const int bufferLength = 128;
+const int adcBufferLength = 32;
+
+
 
 boolean verbose = true;
 
 class BrewCommands {
-public: 
+	public: 
 
-  const static char commandSeparator = ':';
-  const static char argumentSeparator = '-';
-  const static char reportSeparator = '=';
-  
+	  const static char commandSeparator = ':';
+	  const static char argumentSeparator = '-';
+	  const static char reportSeparator = '=';
+	  
 };
 ///////////////////////////////////////////////////
 
@@ -62,9 +71,10 @@ char messageBuffer[bufferLength], rawCommand[bufferLength],
     command[bufferLength], variable[bufferLength],argument[bufferLength],
     floatConvertBuffer[bufferLength];
 
-int nMessageBuffer = 0, nRawCommand=0, nCommand=0, nVariable=0, nArgument=0, nFloatConvert=0;
+int nMessageBuffer = 0, nRawCommand=0, nCommand=0, nVariable=0, nArgument=0, nFloatConvert=0, loopCounter;
 
-double thermistorResistance, thermistorTemperature;
+double thermistorResistance, hltTemperature, mashTemperature, fermenterTemperature, thermistorTemperature;
+
 
 //-----------------------------------------------------
 
@@ -135,9 +145,31 @@ void setup() {
 
 
 void loop() {
-   
+  loopCounter++;
+  //don't burn the place down
+  if (loopCounter>=1000){
+    digitalWrite(hltActuatorPin, LOW);
+    digitalWrite(mashActuatorPin, LOW);
+    digitalWrite(fermenterActuatorPin, LOW);
+  }
 
   client = server.available();
+  
+  if (!client.connected()){
+    hltTemperature = getHltTemperature();
+    mashTemperature = getMashTemperature();
+    fermenterTemperature = getFermenterTemperature();
+     		
+    Serial.print("(HLT, MASH, FERM) = ");
+    Serial.print(hltTemperature);
+    Serial.print(", ");
+    Serial.print(mashTemperature);
+    Serial.print(", ");
+    Serial.println(fermenterTemperature);
+    
+    delay(100);
+  }
+  
   while (client.connected()) {
       if (client.available()>0){
         delay(20); 
@@ -222,6 +254,9 @@ void loop() {
         client.flush();
         client.stop();
       }
+      
+
+      
   }
 
 }
@@ -229,18 +264,65 @@ void loop() {
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::FUNCTIONS::::::::::::::::::::::::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::
-double readThermistorResistance(int pinNr){
-  double R;
-  int adcValue = analogRead(pinNr);
-  if (adcValue ==0)
-    adcValue = 1;
-  R = 10000.0/(1023.0/((double)adcValue) -1);
-  return R;
+double readAdcValue(int pinNr){
+	double meanVal = 0.0;
+	int val;
+	for(int i=0;i<adcBufferLength;i++){
+		val = analogRead(pinNr);
+		if (val==0){
+			val++;
+		}
+		meanVal+= (double) val;
+	}
+	meanVal /= adcBufferLength;
+        return meanVal;
+	
 }
-double resistanceToTemperature(double R){
+
+double getDividerResistance(int pinNr){
+	double dividerResistance;
+	switch (pinNr){
+		  case hltTemperaturePin:
+			dividerResistance=hltDividerResistance;
+			break;
+		  case mashTemperaturePin:
+			dividerResistance=mashDividerResistance;
+			break;
+		  case fermenterTemperaturePin:
+			dividerResistance=fermenterDividerResistance;
+	}
+	return dividerResistance;
+}
+
+double readThermistorResistance(int pinNr){
+  double thermistorResistance;
+  double dividerResistance = getDividerResistance(pinNr);
+  double adcValue = readAdcValue(pinNr);
+  
+  thermistorResistance = dividerResistance/(1023.0/(adcValue) -1);
+  return thermistorResistance;
+}
+
+double resistanceToTemperature(double thermistorResistance){
   double rT;
-  rT = 1.0/298.15+(1.0/3950.0)*log(R/10000.0);
+  rT = 1.0/298.15+(1.0/3950.0)*log(thermistorResistance/10000.0);
   return 1.0/rT-273.15;
+}
+
+double getTemperature(int pinNr){
+	double thermistorResistance = readThermistorResistance(pinNr);
+	double temperature = resistanceToTemperature(thermistorResistance);
+	return temperature;
+}
+
+double getHltTemperature(){
+	return getTemperature(hltTemperaturePin);
+}
+double getMashTemperature(){
+	return getTemperature(mashTemperaturePin);
+}
+double getFermenterTemperature(){
+	return getTemperature(fermenterTemperaturePin);
 }
 
 void parseCommand(){
