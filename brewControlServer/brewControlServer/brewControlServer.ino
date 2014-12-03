@@ -1,18 +1,13 @@
-#include <WebServer.h>
-
 /*
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
  
  */
-
+#include <WebServer.h>
 #include <SPI.h>
 #include <Ethernet.h>
-
-
-///////////////////////////////////////////////////
-//////////////////////////////CONSTANTS////////////
-///////////////////////////////////////////////////
+#include <brewControl.h>
+#include <verbosePrint.h>
 
 const char HLT[] = "HLT";
 const int HLT_LEN = 3;
@@ -32,34 +27,17 @@ const int OFF_LEN = 3;
 const char GET[] = "GET";
 const int GET_LEN = 3;
 
-const int hltActuatorPin = 7;
-const int mashActuatorPin = 8;
-const int fermenterActuatorPin = 9;
-
-const int hltTemperaturePin = 0;
-const int mashTemperaturePin = 1;
-const int fermenterTemperaturePin = 2;
-
-const double hltDividerResistance = 10000.0;
-const double mashDividerResistance = 10000.0;
-const double fermenterDividerResistance = 10000.0;
-
-
 
 const int bufferLength = 128;
-const int adcBufferLength = 32;
-
-
-
 boolean verbose = true;
 
 class BrewCommands {
-	public: 
+    public: 
 
-	  const static char commandSeparator = ':';
-	  const static char argumentSeparator = '-';
-	  const static char reportSeparator = '=';
-	  
+      const static char commandSeparator = ':';
+      const static char argumentSeparator = '-';
+      const static char reportSeparator = '=';
+      
 };
 ///////////////////////////////////////////////////
 
@@ -97,78 +75,31 @@ EthernetClient client;
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 void setup() {
-  pinMode(hltActuatorPin, OUTPUT);
-  pinMode(mashActuatorPin , OUTPUT);
-  pinMode(fermenterActuatorPin, OUTPUT);
-  
-  
-     char fillChar = '_';
-  for(int i=0;i<bufferLength;i++){
-    messageBuffer[i] = fillChar;
-    rawCommand[i] = fillChar;
-    command[i] = fillChar;
-    variable[i] = fillChar;
-    argument[i] = fillChar;
-
-  }
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  // this check is only needed on the Leonardo:
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-    
-
-  }
-
-
-  // start the Ethernet connection:
-  Serial.println("Trying to get an IP address using DHCP");
-  if (true){//(Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // initialize the ethernet device not using DHCP:
-    Ethernet.begin(mac, ip, gateway, subnet);
-  }
-  // print your local IP address:
-  Serial.print("My IP address: ");
-  ip = Ethernet.localIP();
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(ip[thisByte], DEC);
-    Serial.print("."); 
-  }
-  Serial.println();
-  // start listening for clients
-  server.begin();
-  
+	setupBrewPins();
+	setupBuffers();
+	setupSerial();
+	setupEthernet();
   }
 ///////////////////////////////////////////////////////////////
 
 
 void loop() {
-  loopCounter++;
-  //don't burn the place down
-  if (loopCounter>=1000){
-    digitalWrite(hltActuatorPin, LOW);
-    digitalWrite(mashActuatorPin, LOW);
-    digitalWrite(fermenterActuatorPin, LOW);
-  }
+	//don't burn the place down
+	loopCounter++;
+	if (loopCounter>=1000){
+		deactuate();
+		loopCounter=0;
+	}
+	
+	hltTemperature = getHltTemperature();
+	mashTemperature = getMashTemperature();
+	fermenterTemperature = getFermenterTemperature();
 
-  client = server.available();
+	client = server.available();
   
-  if (!client.connected()){
-    hltTemperature = getHltTemperature();
-    mashTemperature = getMashTemperature();
-    fermenterTemperature = getFermenterTemperature();
-     		
-    Serial.print("(HLT, MASH, FERM) = ");
-    Serial.print(hltTemperature);
-    Serial.print(", ");
-    Serial.print(mashTemperature);
-    Serial.print(", ");
-    Serial.println(fermenterTemperature);
-    
-    delay(100);
-  }
+	if (!client.connected()){ 
+	  printTemperatures();
+	}
   
   while (client.connected()) {
       if (client.available()>0){
@@ -176,49 +107,25 @@ void loop() {
           
         receiveMessage(client);
         client.flush();
-        verbosePrint("got the message: ");
-        
-        verbosePrintLn(rawCommand, nRawCommand);
-        
-        //echo for debugging purposes
-        //copyArrayToMessageBuffer(rawCommand, nRawCommand);
-        //writeMessage(server);
 
-        verbosePrintLn("parsing begin.");
-        
-        parseCommand();
-        verbosePrintLn("command parsed: ");
-        verbosePrintLn(command, nCommand);
-        
-        parseVariable();
-        verbosePrintLn("variable parsed: ");
-        verbosePrintLn(variable, nVariable);
-        
-        parseArgument();
-        verbosePrintLn("argument parsed: ");
-        verbosePrintLn(argument, nArgument);
-        
-        verbosePrintLn("...parsing complete!");
-
-        verbosePrintLn("report to client complete");
-        
+        parseMessage();
         
         
         if (compareArrays(command,nCommand, ON,ON_LEN)){
           if (compareArrays(variable,nVariable, HLT, HLT_LEN))
-            digitalWrite(hltActuatorPin, HIGH);
+            actuateHltHeater();
           else if (compareArrays(variable,nVariable, MASH, MASH_LEN))
-            digitalWrite(mashActuatorPin, HIGH);
+            actuateMashHeater();
           else if (compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN))
-            digitalWrite(fermenterActuatorPin, HIGH);
+            actuateFermenterHeater();
         }
         else if (compareArrays(command,nCommand, OFF,OFF_LEN)){
           if (compareArrays(variable,nVariable, HLT, HLT_LEN))
-            digitalWrite(hltActuatorPin, LOW);
+            deactuateHltHeater();
           else if (compareArrays(variable,nVariable, MASH, MASH_LEN))
-            digitalWrite(mashActuatorPin, LOW);
+            deactuateMashHeater();
           else if (compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN))
-            digitalWrite(fermenterActuatorPin, LOW);
+            deactuateFermenterHeater();
         }
         
         if (compareArrays(command,nCommand, GET,GET_LEN)){
@@ -254,76 +161,97 @@ void loop() {
         client.flush();
         client.stop();
       }
-      
-
-      
   }
-
 }
 
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::
-//::::::::::::::::::::FUNCTIONS::::::::::::::::::::::::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::
-double readAdcValue(int pinNr){
-	double meanVal = 0.0;
-	int val;
-	for(int i=0;i<adcBufferLength;i++){
-		val = analogRead(pinNr);
-		if (val==0){
-			val++;
-		}
-		meanVal+= (double) val;
+void setupBuffers(){
+	char fillChar = '_';
+	for(int i=0;i<bufferLength;i++){
+		messageBuffer[i] = fillChar;
+		rawCommand[i] = fillChar;
+		command[i] = fillChar;
+		variable[i] = fillChar;
+		argument[i] = fillChar;
 	}
-	meanVal /= adcBufferLength;
-        return meanVal;
-	
 }
 
-double getDividerResistance(int pinNr){
-	double dividerResistance;
-	switch (pinNr){
-		  case hltTemperaturePin:
-			dividerResistance=hltDividerResistance;
-			break;
-		  case mashTemperaturePin:
-			dividerResistance=mashDividerResistance;
-			break;
-		  case fermenterTemperaturePin:
-			dividerResistance=fermenterDividerResistance;
+void setupSerial(){
+	Serial.begin(9600);
+	// this check is only needed on the Leonardo:
+	while (!Serial) {
+	; // wait for serial port to connect. Needed for Leonardo only
 	}
-	return dividerResistance;
 }
 
-double readThermistorResistance(int pinNr){
-  double thermistorResistance;
-  double dividerResistance = getDividerResistance(pinNr);
-  double adcValue = readAdcValue(pinNr);
-  
-  thermistorResistance = dividerResistance/(1023.0/(adcValue) -1);
-  return thermistorResistance;
+void setupEthernet(){
+	Serial.println("Configure static ip...");
+	Ethernet.begin(mac, ip, gateway, subnet);
+	Serial.print("My IP address: ");
+	ip = Ethernet.localIP();
+	for (byte thisByte = 0; thisByte < 4; thisByte++) {
+		Serial.print(ip[thisByte], DEC);
+		Serial.print("."); 
+	}
+	Serial.println();
+	server.begin();
 }
 
-double resistanceToTemperature(double thermistorResistance){
-  double rT;
-  rT = 1.0/298.15+(1.0/3950.0)*log(thermistorResistance/10000.0);
-  return 1.0/rT-273.15;
+void printTemperatures(){
+	Serial.print("(HLT, MASH, FERM) = ");
+    Serial.print(hltTemperature);
+    Serial.print(", ");
+    Serial.print(mashTemperature);
+    Serial.print(", ");
+    Serial.println(fermenterTemperature);
+    delay(20);
 }
 
-double getTemperature(int pinNr){
-	double thermistorResistance = readThermistorResistance(pinNr);
-	double temperature = resistanceToTemperature(thermistorResistance);
-	return temperature;
+void parseMessage(){
+	verbosePrint("got the message: ");
+	verbosePrintLn(rawCommand, nRawCommand);
+
+	verbosePrintLn("parsing begin.");
+
+	parseCommand();
+	verbosePrintLn("command parsed: ");
+	verbosePrintLn(command, nCommand);
+
+	parseVariable();
+	verbosePrintLn("variable parsed: ");
+	verbosePrintLn(variable, nVariable);
+
+	parseArgument();
+	verbosePrintLn("argument parsed: ");
+	verbosePrintLn(argument, nArgument);
+
+	verbosePrintLn("...parsing complete!");
 }
 
-double getHltTemperature(){
-	return getTemperature(hltTemperaturePin);
+bool isOnCommand(){
+	compareArrays(command,nCommand, ON,ON_LEN);
 }
-double getMashTemperature(){
-	return getTemperature(mashTemperaturePin);
+
+bool isOffCommand(){
+	compareArrays(command,nCommand, OFF,OFF_LEN);
 }
-double getFermenterTemperature(){
-	return getTemperature(fermenterTemperaturePin);
+
+bool isGetCommand(){
+	compareArrays(command,nCommand, GET,GET_LEN)
 }
+
+bool isMash(){
+	compareArrays(variable,nVariable, MASH, MASH_LEN)
+}
+
+bool isHlt(){
+	compareArrays(variable,nVariable, HLT, HLT_LEN)
+}
+
+bool isFermenter(){
+	compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN)
+}
+
+
 
 void parseCommand(){
   char c;
@@ -424,42 +352,7 @@ boolean compareArrays(char* a1,  int n1, const char* a2, const int n2){
   return true;
 }
 
-void verbosePrint(char printable){
-  if (verbose){
-    Serial.print(printable);
-  }
-}
-void verbosePrint(char* printable){
-  if (verbose){
-    Serial.print(printable);
-  }
-}
-void verbosePrint(char* printable, int n){
-  if (verbose){
-    serialPrintCharArray(printable,n);
-  }
-}
-void verbosePrint(int printable){
-  if (verbose){
-    Serial.print(printable);
-  }
-}
-void verbosePrintLn(char* printable){
-  if (verbose){
-    Serial.println(printable);
-  }
-}
-void verbosePrintLn(char* printable, int n){
-  if (verbose){
-    serialPrintLnCharArray(printable,n);
-  }
-}
 
-void verbosePrintLn(int printable){
-  if (verbose){
-    Serial.println(printable);
-  }
-}
 
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::
