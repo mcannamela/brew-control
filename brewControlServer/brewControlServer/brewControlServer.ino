@@ -147,10 +147,11 @@ void setup() {
 void loop() {
   loopCounter++;
   //don't burn the place down
-  if (loopCounter>=1000){
+  if (loopCounter>=500){
     digitalWrite(hltActuatorPin, LOW);
     digitalWrite(mashActuatorPin, LOW);
     digitalWrite(fermenterActuatorPin, LOW);
+    loopCounter=0;
   }
 
   client = server.available();
@@ -167,7 +168,7 @@ void loop() {
     Serial.print(", ");
     Serial.println(fermenterTemperature);
     
-    delay(100);
+    delay(10);
   }
   
   while (client.connected()) {
