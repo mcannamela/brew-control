@@ -1,3 +1,16 @@
+
+bool verbose = false;
+void serialPrintCharArray(char* array, int n){
+  for (int i=0;i<n;i++){
+    Serial.print(array[i]);
+  }
+};
+
+void serialPrintLnCharArray(char* array, int n){
+  serialPrintCharArray(array, n);
+  Serial.print('\n');
+};
+
 void verbosePrint(char printable){
   if (verbose){
     Serial.print(printable);
@@ -34,3 +47,5 @@ void verbosePrintLn(int printable){
     Serial.println(printable);
   }
 }
+
+

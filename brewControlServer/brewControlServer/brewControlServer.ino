@@ -6,8 +6,9 @@
 #include <WebServer.h>
 #include <SPI.h>
 #include <Ethernet.h>
-#include <brewControl.h>
-#include <verbosePrint.h>
+#include <math.h>
+#include "brewControl.h"
+#include "verbosePrint.h"
 
 const char HLT[] = "HLT";
 const int HLT_LEN = 3;
@@ -29,7 +30,7 @@ const int GET_LEN = 3;
 
 
 const int bufferLength = 128;
-boolean verbose = true;
+
 
 class BrewCommands {
     public: 
@@ -111,46 +112,43 @@ void loop() {
         parseMessage();
         
         
-        if (compareArrays(command,nCommand, ON,ON_LEN)){
-          if (compareArrays(variable,nVariable, HLT, HLT_LEN))
+        
+        if (isOnCommand()){
+          if (isHlt())
             actuateHltHeater();
-          else if (compareArrays(variable,nVariable, MASH, MASH_LEN))
+          else if (isMash())
             actuateMashHeater();
-          else if (compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN))
+          else if (isFermenter())
             actuateFermenterHeater();
         }
-        else if (compareArrays(command,nCommand, OFF,OFF_LEN)){
-          if (compareArrays(variable,nVariable, HLT, HLT_LEN))
+        else if (isOffCommand()){
+          if (isHlt())
             deactuateHltHeater();
-          else if (compareArrays(variable,nVariable, MASH, MASH_LEN))
+          else if (isMash())
             deactuateMashHeater();
-          else if (compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN))
+          else if (isFermenter())
             deactuateFermenterHeater();
         }
         
-        if (compareArrays(command,nCommand, GET,GET_LEN)){
-          if (compareArrays(variable,nVariable, HLT, HLT_LEN)){
-            thermistorResistance = readThermistorResistance(hltTemperaturePin);
-            thermistorTemperature = resistanceToTemperature(thermistorResistance);
+        if (isGetCommand()){
+          if (isHlt()){
+            
+            thermistorTemperature = hltTemperature;
             Serial.print("HLT temperature: ");
-            Serial.println(thermistorTemperature);
+            
           }
-          else if (compareArrays(variable,nVariable, MASH, MASH_LEN)){
-            thermistorResistance = readThermistorResistance(mashTemperaturePin);
-            thermistorTemperature = resistanceToTemperature(thermistorResistance);
+          else if (isMash()){
+            thermistorTemperature = mashTemperature;
             Serial.print("mash temperature: ");
-            Serial.println(thermistorTemperature);
           }
-          else if (compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN)){
-            thermistorResistance = readThermistorResistance(fermenterTemperaturePin);
-            thermistorTemperature = resistanceToTemperature(thermistorResistance);
+          else if (isFermenter()){
+            thermistorTemperature = fermenterTemperature;
             Serial.print("fermenter temperature: ");
-            Serial.println(thermistorTemperature);
           }
           
-          server.print(int(thermistorTemperature));
-          server.print('.');
-          server.println( int( (thermistorTemperature-int(thermistorTemperature))*10 ) );
+          Serial.println(thermistorTemperature);
+          
+          writeTemperature(thermistorTemperature);
           
         }
         else{
@@ -162,6 +160,13 @@ void loop() {
         client.stop();
       }
   }
+}
+
+void writeTemperature(double temperature){
+	server.print(floor(thermistorTemperature));
+	server.print('.');
+	server.println( int( (thermistorTemperature-floor(thermistorTemperature))*100 ) );
+	
 }
 
 void setupBuffers(){
@@ -236,19 +241,19 @@ bool isOffCommand(){
 }
 
 bool isGetCommand(){
-	compareArrays(command,nCommand, GET,GET_LEN)
+	compareArrays(command,nCommand, GET,GET_LEN);
 }
 
 bool isMash(){
-	compareArrays(variable,nVariable, MASH, MASH_LEN)
+	compareArrays(variable,nVariable, MASH, MASH_LEN);
 }
 
 bool isHlt(){
-	compareArrays(variable,nVariable, HLT, HLT_LEN)
+	compareArrays(variable,nVariable, HLT, HLT_LEN);
 }
 
 bool isFermenter(){
-	compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN)
+	compareArrays(variable,nVariable, FERMENTER, FERMENTER_LEN);
 }
 
 
@@ -330,15 +335,7 @@ void copyArrayToMessageBuffer(char*array, int n){
   }
 };
 
-void serialPrintCharArray(char* array, int n){
-  for (int i=0;i<n;i++){
-    Serial.print(array[i]);
-  }
-};
-void serialPrintLnCharArray(char* array, int n){
-  serialPrintCharArray(array, n);
-  Serial.print('\n');
-};
+
 
 boolean compareArrays(char* a1,  int n1, const char* a2, const int n2){
   if (n1!=n2){
@@ -351,12 +348,4 @@ boolean compareArrays(char* a1,  int n1, const char* a2, const int n2){
   }
   return true;
 }
-
-
-
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-
 

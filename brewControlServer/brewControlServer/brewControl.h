@@ -20,47 +20,7 @@ void setupBrewPins() {
   pinMode(mashActuatorPin , OUTPUT);
   pinMode(fermenterActuatorPin, OUTPUT);
   }
-
-double getHltTemperature(){
-    return getTemperature(hltTemperaturePin);
-}
-
-double getMashTemperature(){
-    return getTemperature(mashTemperaturePin);
-}
-
-double getFermenterTemperature(){
-    return getTemperature(fermenterTemperaturePin);
-}
-
-void actuateHltHeater(){
-    actuateHeater(hltActuatorPin);
-}
-
-void actuateMashHeater(){
-    actuateHeater(mashActuatorPin);
-}
-
-void actuateFermenterHeater(){
-    actuateHeater(fermenterActuatorPin);
-}
-
-void deactuateHltHeater(){
-    deactuateHeater(hltActuatorPin);
-}
-void deactuateMashHeater(){
-    deactuateHeater(mashActuatorPin);
-}
-void deactuateFermenterHeater(){
-    deactuateHeater(fermenterActuatorPin);
-}
-
-void deactuate(){
-	deactuateHltHeater();
-	deactuateMashHeater();
-	deactuateFermenterHeater();
-}
-
+  
 void actuateHeater(int pinNr){
     digitalWrite(pinNr, HIGH);
 }
@@ -119,4 +79,46 @@ double getTemperature(int pinNr){
     double temperature = convertResistanceToTemperature(thermistorResistance);
     return temperature;
 }
+
+double getHltTemperature(){
+    return getTemperature(hltTemperaturePin);
+}
+
+double getMashTemperature(){
+    return getTemperature(mashTemperaturePin);
+}
+
+double getFermenterTemperature(){
+    return getTemperature(fermenterTemperaturePin);
+}
+
+void actuateHltHeater(){
+    actuateHeater(hltActuatorPin);
+}
+
+void actuateMashHeater(){
+    actuateHeater(mashActuatorPin);
+}
+
+void actuateFermenterHeater(){
+    actuateHeater(fermenterActuatorPin);
+}
+
+void deactuateHltHeater(){
+    deactuateHeater(hltActuatorPin);
+}
+void deactuateMashHeater(){
+    deactuateHeater(mashActuatorPin);
+}
+void deactuateFermenterHeater(){
+    deactuateHeater(fermenterActuatorPin);
+}
+
+void deactuate(){
+	deactuateHltHeater();
+	deactuateMashHeater();
+	deactuateFermenterHeater();
+}
+
+
 
