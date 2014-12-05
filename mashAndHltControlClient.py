@@ -48,7 +48,6 @@ def get_temperature(command):
     client.sendMessage(command)
     time.sleep(.1)
     rmsg = client.receiveMessages()
-    print rmsg
     temperature = cook_temperature_string(rmsg[0])
     client.close()
     return temperature
@@ -96,17 +95,18 @@ if __name__=="__main__":
         while True:
             print 'sensing...'
             actuals = get_temps()
+            log_temps(f,actuals)
 
             print 'taking control action...'
             for k,t_actual in actuals.items():
-                if should_actuate(setpoints[k], t_actual):
+                if should_actuate(setpoints[k], t_actual) and k!=FERM:
                     cmd = on_commands[k]
                 else:
                     cmd = off_commands[k]
 
-            print '    sending command: '+cmd
-            actuate(cmd)
+                print '    sending command: '+cmd
+                actuate(cmd)
 
-            time.sleep(5)
+            time.sleep(2)
         
     
