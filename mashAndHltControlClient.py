@@ -73,11 +73,15 @@ def log_temps(f, temp_dict):
 if __name__=="__main__":
     testTemp = 25.0
     mashingTemp = 66.6
-    strikeTemp = 74.0
-    mashOutTemp = 76
+    strikeTemp = 77.0
+    mashOutTemp = 76.0
     
-    mashSetpoint = testTemp
-    hltSetpoint = testTemp
+    #thermistor placed under outermost layer of insulation
+    heater_safety_temp = 90.0
+    
+    
+    mashSetpoint = strikeTemp
+    hltSetpoint = mashOutTemp
     fermSetpoint = testTemp
 
     setpoints = {MASH:mashSetpoint,
@@ -99,10 +103,14 @@ if __name__=="__main__":
 
             print 'taking control action...'
             for k,t_actual in actuals.items():
-                if should_actuate(setpoints[k], t_actual) and k!=FERM:
-                    cmd = on_commands[k]
-                else:
+                if actuals[FERM]>heater_safety_temp:
+                    print '    unsafe heater temp detected, everything will be turned off!'                    
                     cmd = off_commands[k]
+                else:    
+                    if should_actuate(setpoints[k], t_actual) and k!=FERM:
+                        cmd = on_commands[k]
+                    else:
+                        cmd = off_commands[k]
 
                 print '    sending command: '+cmd
                 actuate(cmd)

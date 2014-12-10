@@ -25,9 +25,9 @@ with open(args.file[0], 'rb') as f:
 
 temperatures = N.array(temperatures)
 t = [(dt-times[0]).total_seconds()/60.0 for dt in times]
-#P.plot(t, medfilt(temperatures[:,0], 31), 'k', label= 'mash')
-P.plot(t, medfilt(temperatures[:,1], 31), 'g', label= 'HLT')
-P.plot(t, medfilt(temperatures[:,2], 31), 'r', label= 'Fermenter')
+P.plot(t, temperatures[:,0], 'k', label= 'mash')
+P.plot(t, temperatures[:,1], 'g', label= 'HLT')
+P.plot(t, temperatures[:,2], 'r', label= 'Fermenter')
 P.xlabel('time, min')
 P.ylabel('temperature, C')
 P.legend(loc='upper left')
