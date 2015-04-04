@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import os
 import argparse
+import socket
 
 parser = argparse.ArgumentParser(description='Plot the brewlog.')
 parser.add_argument('--logfile',
@@ -46,7 +47,7 @@ def cook_temperature_string(t):
 def get_temperature(command):
     client = get_client()
     client.sendMessage(command)
-    time.sleep(.1)
+    time.sleep(.2)
     rmsg = client.receiveMessages()
     temperature = cook_temperature_string(rmsg[0])
     client.close()
@@ -55,7 +56,7 @@ def get_temperature(command):
 def actuate(command):
     client = get_client()
     client.sendMessage(command)
-    time.sleep(.1)
+    time.sleep(.2)
     rmsg = client.receiveMessages()
     print '    recvd msg: '+rmsg[0]
     client.close()
@@ -67,21 +68,46 @@ def log_temps(f, temp_dict):
     keys = [HLT, MASH, FERM]
     x = map(str, [datetime.now()] + [temp_dict[k] for k in keys])
     s = ', '.join(x)
+    print keys
     print s
     f.write(s+'\n')
 
+def is_heater_condition_unsafe(actuals, safety_temp):
+    return actuals[FERM]>safety_temp
+
+def is_pump_condition_unsafe(actuals, pump_safety_temp):
+    return (actuals[MASH]>pump_safety_temp)# or actuals[HLT]>pump_safety_temp)
+
+def select_command(actuals, heater_safety_temp, pump_safety_temp):
+    if is_heater_condition_unsafe(actuals, heater_safety_temp):
+        print '    unsafe heater temp detected, everything will be turned off!'
+        cmd = off_commands[k]
+    else:
+        if should_actuate(setpoints[k], t_actual) and k!=FERM:
+            if k==MASH and is_pump_condition_unsafe(actuals, pump_safety_temp):
+                cmd = off_commands[k]
+            else:
+                cmd = on_commands[k]
+        else:
+            cmd = off_commands[k]
+    return cmd
+
+
+
+
 if __name__=="__main__":
-    testTemp = 25.0
+    testTemp = 33.0
     mashingTemp = 66.6
-    strikeTemp = 77.0
-    mashOutTemp = 76.0
+    strikeTemp = 80.0
+    mashOutTemp = 78.0
     
     #thermistor placed under outermost layer of insulation
-    heater_safety_temp = 90.0
+    heater_safety_temp = 95.0
+    pump_safety_temp = 70.0    
     
-    
-    mashSetpoint = strikeTemp
-    hltSetpoint = mashOutTemp
+
+    mashSetpoint = mashingTemp
+    hltSetpoint = strikeTemp
     fermSetpoint = testTemp
 
     setpoints = {MASH:mashSetpoint,
@@ -97,21 +123,12 @@ if __name__=="__main__":
     mash_prev = []
     with open(os.path.join(fpath, fname), 'a') as f:
         while True:
-            print 'sensing...'
+            print '\nsensing...'
             actuals = get_temps()
             log_temps(f,actuals)
 
-            print 'taking control action...'
             for k,t_actual in actuals.items():
-                if actuals[FERM]>heater_safety_temp:
-                    print '    unsafe heater temp detected, everything will be turned off!'                    
-                    cmd = off_commands[k]
-                else:    
-                    if should_actuate(setpoints[k], t_actual) and k!=FERM:
-                        cmd = on_commands[k]
-                    else:
-                        cmd = off_commands[k]
-
+                cmd = select_command(actuals, heater_safety_temp, pump_safety_temp)
                 print '    sending command: '+cmd
                 actuate(cmd)
 
