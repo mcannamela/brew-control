@@ -50,7 +50,9 @@ def get_temperature(command):
     time.sleep(.2)
     rmsg = client.receiveMessages()
     temperature = cook_temperature_string(rmsg[0])
+    time.sleep(.1)
     client.close()
+    time.sleep(.1)
     return temperature
 
 def actuate(command):
@@ -59,7 +61,9 @@ def actuate(command):
     time.sleep(.2)
     rmsg = client.receiveMessages()
     print '    recvd msg: '+rmsg[0]
+    time.sleep(.1)
     client.close()
+    time.sleep(.1)
 
 def get_temps():
     return {k:get_temperature(command) for k,command in sense_commands.items()}
@@ -110,28 +114,36 @@ if __name__=="__main__":
     hltSetpoint = strikeTemp
     fermSetpoint = testTemp
 
-    setpoints = {MASH:mashSetpoint,
-                 HLT:hltSetpoint,
-                 FERM:fermSetpoint}
+    setpoints = {MASH: mashSetpoint,
+                 HLT: hltSetpoint,
+                 FERM: fermSetpoint}
 
-    actuals = {MASH:100,
-               HLT:100,
-               FERM:100}
+    actuals = {MASH: 100,
+               HLT: 100,
+               FERM: 100}
 
     fpath = os.path.expanduser('~')
     fname = args.logfile
     mash_prev = []
     with open(os.path.join(fpath, fname), 'a') as f:
         while True:
+            # try:
             print '\nsensing...'
             actuals = get_temps()
             log_temps(f,actuals)
 
-            for k,t_actual in actuals.items():
+            for k, t_actual in actuals.items():
                 cmd = select_command(actuals, heater_safety_temp, pump_safety_temp)
                 print '    sending command: '+cmd
                 actuate(cmd)
 
-            time.sleep(2)
-        
+            time.sleep(1.5)
+            # except socket.timeout:
+            #     print "Timed out!"
+            #     print "try again in {}".format(10)
+            #     time.sleep(1)
+            #     for i in range(9):
+            #         print "{}".format(9-i)
+            #         time.sleep(1)
+
     
