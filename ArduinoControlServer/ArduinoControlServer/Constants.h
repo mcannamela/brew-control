@@ -1,7 +1,8 @@
-#define 
+#
 #include <PString.h>
 
 #ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 
 #define NAMELEN 32
@@ -31,7 +32,6 @@ enum COMMAND_RESULT {
 };
 
 
-
 bool isPinReserved(int pinNr) {
   for (int i = 0; i < N_RESERVED_PINS; i++) {
     if (pinNr == RESERVED_PINS[i]) {
@@ -41,14 +41,15 @@ bool isPinReserved(int pinNr) {
   return false;
 }
 
-bool isInterruptPin(in pinNr) {
+
+bool isInterruptPin(int pinNr) {
   for (int i = 0; i < N_INTERRUPT_PINS; i++) {
     if (pinNr == INTERRUPT_PINS[i]) {
       return true;
     }
   };
   return false;
-  }
+}
 
 #endif /* CONSTANTS_H */
 
