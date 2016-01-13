@@ -1,4 +1,8 @@
+#define 
 #include <PString.h>
+
+#ifndef CONSTANTS_H
+
 
 #define NAMELEN 32
 #define VALUELEN 32
@@ -11,7 +15,14 @@ const char  SET_PIN_HIGH[] = "SET_PIN_HIGH";
 const char  SET_PIN_LOW[] = "SET_PIN_LOW";
 
 const int RESERVED_PINS[] = {2, 3, 10, 11, 12, 13};
-const int   RESERVED_PINS_LEN = 6;
+const int N_RESERVED_PINS = 6;
+
+const int INTERRUPT_PINS[] = {2, 3};
+const int N_INTERRUPT_PINS = 2;
+
+
+const int N_DPINS = 16;
+const int N_APINS = 5;
 
 
 enum COMMAND_RESULT {
@@ -20,8 +31,9 @@ enum COMMAND_RESULT {
 };
 
 
+
 bool isPinReserved(int pinNr) {
-  for (int i = 0; i < RESERVED_PINS_LEN; i++) {
+  for (int i = 0; i < N_RESERVED_PINS; i++) {
     if (pinNr == RESERVED_PINS[i]) {
       return true;
     }
@@ -29,47 +41,19 @@ bool isPinReserved(int pinNr) {
   return false;
 }
 
-
-bool areCommandsEqual(char* commandName, const char* constCommandName) { 
-  
-  char constCommandBuffer[NAMELEN];
-  char commandBuffer[NAMELEN];
-  
-  PString constCommand(constCommandBuffer, NAMELEN);
-  PString command(commandBuffer, NAMELEN);
-
-  constCommand.print(constCommandName);
-  command.print(commandName);
-
-  return command == constCommand;
-  
-
-}
-
-
-int executeCommand(char* commandName, char* value) {
-  int pinNr = atoi(value);
-  
-
-  if (isPinReserved(pinNr)) {
-    return FAIL_PIN_RESERVED;
-  }
-  else if (areCommandsEqual(commandName, SET_PINMODE_OUT)) {
-    pinMode(pinNr, OUTPUT);
-  }
-  else if (areCommandsEqual(commandName, SET_PINMODE_IN)) {
-    pinMode(pinNr, INPUT);
-  }
-  else if (areCommandsEqual(commandName, SET_PIN_HIGH)) {
-    digitalWrite(pinNr, HIGH);
-  }
-  else if (areCommandsEqual(commandName, SET_PIN_LOW)) {
-    digitalWrite(pinNr, LOW);
+bool isInterruptPin(in pinNr) {
+  for (int i = 0; i < N_INTERRUPT_PINS; i++) {
+    if (pinNr == INTERRUPT_PINS[i]) {
+      return true;
+    }
+  };
+  return false;
   }
 
-  return COMMAND_OK;
+#endif /* CONSTANTS_H */
 
-}
+
+
 
 
 
