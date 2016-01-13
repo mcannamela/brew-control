@@ -1,4 +1,3 @@
-
 /* Web_Parms_1.pde - very simple Webduino example of parameter passing and parsing */
 
 /*
@@ -29,36 +28,26 @@
  * parameters, and display them.
  */
 
-#define WEBDUINO_SERIAL_DEBUGGING 1
+
 #define WEBDUINO_FAIL_MESSAGE "<h1>Request Failed</h1>"
 #include "SPI.h" // new include
 #include "avr/pgmspace.h" // new include
 #include "Ethernet.h"
-#include <WebServer.h>
-#include "BrewControl.h"
-
+#include "WebServer.h"
 
 #define VERSION_STRING "0.1"
-/* copy-pasta from brewControlServer
-byte mac[] = { 
-  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
-IPAddress ip(192,168,11, 101);
-IPAddress gateway(192,168,1, 1);
-IPAddress subnet(255, 255, 255, 0);
-*/
-
 
 /* CHANGE THIS TO YOUR OWN UNIQUE VALUE.  The MAC number should be
  * different from any other devices on your network or you'll have
  * problems receiving packets. */
-static uint8_t mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
+static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 
 /* CHANGE THIS TO MATCH YOUR HOST NETWORK.  Most home networks are in
  * the 192.168.0.XXX or 192.168.1.XXX subrange.  Pick an address
  * that's not in use and isn't going to be automatically allocated by
  * DHCP from your router. */
-static uint8_t ip[] = { 192, 168, 11, 101 };
+static uint8_t ip[] = { 192, 168, 1, 210 };
 
 // ROM-based messages used by the application
 // These are needed to avoid having the strings use up our limited
@@ -158,7 +147,8 @@ void rawCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, b
 
 }
 
-
+#define NAMELEN 32
+#define VALUELEN 32
 
 void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
