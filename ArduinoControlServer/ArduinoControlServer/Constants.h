@@ -7,7 +7,7 @@
 
 #define NAMELEN 32
 #define VALUELEN 32
-#define N_ADC_READS = 32;
+#define N_ADC_READS = 32
 
 #define N_DPINS 16
 #define N_APINS 5
@@ -23,7 +23,7 @@ const int RESERVED_PINS[] = {2, 3, 10, 11, 12, 13};
 const int N_RESERVED_PINS = 6;
 
 const int INTERRUPT_PINS[] = {2, 3};
-const int N_INTERRUPT_PINS = 2;
+#define N_INTERRUPT_PINS 2
 
 
 enum COMMAND_RESULT {
