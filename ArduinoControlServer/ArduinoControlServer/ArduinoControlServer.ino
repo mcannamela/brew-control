@@ -35,7 +35,8 @@
 #include "avr/pgmspace.h" // new include
 #include "Ethernet.h"
 #include <WebServer.h>
-#include "BrewControl.h"
+//#include "BrewControl.h"
+#include "PinCommand.h"
 
 
 #define VERSION_STRING "0.1"
@@ -262,8 +263,9 @@ void my_failCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
 
 void setup()
 {
+  
   /* initialize the Ethernet adapter */
-  Ethernet.begin(mac, ip);
+//  Ethernet.begin(mac, ip);
 
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
@@ -282,14 +284,59 @@ void setup()
   webserver.addCommand("parsed.html", &parsedCmd);
 
   /* start the webserver */
-  webserver.begin();
+//  webserver.begin();
+  Serial.begin(9600);
+  
 }
 
+
+  
 void loop()
 {
+  
+  Serial.println("\n\nLOOP");
+  delay(10);
+  
   char buff[64];
   int len = 64;
 
+  char valbuff[32];
+  valbuff[0] = '1';
+  valbuff[1] = '3';
+  valbuff[2] = '\0';
+ 
+
+  PString command(buff, len);
+  
+  command.begin();
+  command.print(SET_PINMODE_IN);
+  Serial.println(command);
+  executeCommand(command, valbuff);
+  delay(100);
+
+  command.begin();
+  command.print(SET_PINMODE_OUT);
+  Serial.println(command);
+  executeCommand(command, valbuff);
+  delay(100);
+
+  command.begin();
+  command.print(SET_PIN_HIGH);
+  Serial.println(command);
+  executeCommand(command, valbuff);
+  delay(500);
+
+  command.begin();
+  command.print(SET_PIN_LOW);
+  Serial.println(command);
+  executeCommand(command, valbuff);
+  delay(100);
+  delay(1000);
+  
+
+  
+  
+
   /* process incoming connections one at a time forever */
-  webserver.processConnection(buff, &len);
+  //webserver.processConnection(buff, &len);
 }
