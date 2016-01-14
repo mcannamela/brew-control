@@ -1,5 +1,6 @@
 #include "Constants.h"
 
+
 bool areCommandsEqual(PString command, const char* constCommandName) {
   char constCommandBuffer[NAMELEN];
   PString constCommand(constCommandBuffer, NAMELEN);

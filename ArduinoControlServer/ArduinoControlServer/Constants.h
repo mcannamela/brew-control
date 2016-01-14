@@ -7,6 +7,10 @@
 
 #define NAMELEN 32
 #define VALUELEN 32
+#define N_ADC_READS = 32;
+
+#define N_DPINS 16
+#define N_APINS 5
 
 const char  SET_PINMODE_OUT[] = "SET_PINMODE_OUT";
 const char  SET_PINMODE_IN[] = "SET_PINMODE_IN";
@@ -20,10 +24,6 @@ const int N_RESERVED_PINS = 6;
 
 const int INTERRUPT_PINS[] = {2, 3};
 const int N_INTERRUPT_PINS = 2;
-
-
-const int N_DPINS = 16;
-const int N_APINS = 5;
 
 
 enum COMMAND_RESULT {
