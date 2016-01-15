@@ -1,5 +1,7 @@
 #include "Constants.h"
 
+#ifndef PIN_COMMANDS_H
+#define PIN_COMMANDS_H
 
 bool areCommandsEqual(PString command, const char* constCommandName) {
   char constCommandBuffer[NAMELEN];
@@ -56,4 +58,5 @@ int executeCommand(PString command, char* value) {
 
 }
 
+#endif
 
