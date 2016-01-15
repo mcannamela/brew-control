@@ -77,6 +77,8 @@ WebServer webserver(PREFIX, 80);
 
 void setup()
 {
+  Serial.begin(9600);
+  Serial.println("BEGIN SETUP");
   
   /* initialize the Ethernet adapter */
 //  Ethernet.begin(mac, ip);
@@ -99,8 +101,12 @@ void setup()
 
   /* start the webserver */
 //  webserver.begin();
-  Serial.begin(9600);
   
+
+  initInterruptTimeArrays();
+  pinMode(INTERRUPT_PINS[0], OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(INTERRUPT_PINS[0]), handleInterruptZero, RISING);
+  Serial.println("END SETUP");
 }
 
 
@@ -121,7 +127,7 @@ void loop()
  
 
   PString command(buff, len);
-  
+
   command.begin();
   command.print(SET_PINMODE_IN);
   Serial.println(command);
@@ -145,12 +151,14 @@ void loop()
   Serial.println(command);
   executeCommand(command, valbuff);
   delay(100);
-  delay(1000);
+
+  pulseInterruptZeroRising(random(5,15));
+  Serial.print("Mean interrupt time: ");
+  Serial.println(getMeanInterruptTime(INTERRUPT_PINS[0]));
   
+  delay(2000);
 
   
-  
-
   /* process incoming connections one at a time forever */
   //webserver.processConnection(buff, &len);
 }

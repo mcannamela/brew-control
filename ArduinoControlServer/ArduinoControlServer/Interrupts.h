@@ -9,7 +9,7 @@ const double _DECAY_WEIGHT = .95;
 
 
 void initInterruptTimeArrays() {
-  for (int i = 0; i < N_INTERRUPT_PINS; i) {
+  for (int i = 0; i < N_INTERRUPT_PINS; i++) {
     _LAST_INTERRUPT_TIME[i] = 0;
     _MEAN_INTERRUPT_TIME[i] = 0.0;
   }
@@ -31,7 +31,7 @@ void handleInterrupt(int interruptNr) {
     delta = t - _LAST_INTERRUPT_TIME[interruptNr];
     _MEAN_INTERRUPT_TIME[interruptNr] = updateAverage(_MEAN_INTERRUPT_TIME[interruptNr], (double) delta);
   }
-  
+
   _LAST_INTERRUPT_TIME[interruptNr] = t;
 }
 
@@ -42,6 +42,21 @@ void handleInterruptZero() {
 
 void handleInterruptOne() {
   handleInterrupt(1);
+}
+
+void pulseInterruptZeroRising(long pulseWidth) {
+  digitalWrite(INTERRUPT_PINS[0], LOW);
+  delay(1);
+  digitalWrite(INTERRUPT_PINS[0], HIGH);
+  delay(1);
+  digitalWrite(INTERRUPT_PINS[0], LOW);
+  delay(pulseWidth);
+  digitalWrite(INTERRUPT_PINS[0], HIGH);
+}
+
+double getMeanInterruptTime(int interruptIndex) {
+  double t = _MEAN_INTERRUPT_TIME[interruptIndex];
+  return t;
 }
 
 #endif
