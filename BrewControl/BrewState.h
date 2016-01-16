@@ -1,10 +1,11 @@
-#include "Constants.h"
 #ifndef BREW_STATE_H
 #define BREW_STATE_H
+#include "Constants.h"
+
 
 void readDigitalState(bool* state_out){
-  for (int i=0; i<N_DIGITAL_PINS){
-    state_out[i] = digitalRead(i)==HIGH;
+  for (int i=0; i<N_DPINS; i++){
+    state_out[i] = digitalRead(i);
   } 
 }
 
@@ -18,12 +19,12 @@ double getMeanAnalogValue(int pinNr){
         }
         meanVal+= (double) val;
     }
-    meanVal /= n_adc_reads;
+    meanVal /= (double) N_ADC_READS;
         return meanVal;
 }
 
 void readAnalogState(double* state_out){
-  for (int i=0; i<N_ANALOG_PINS){
+  for (int i=0; i<N_APINS; i++){
     state_out[i] = getMeanAnalogValue(i);
   }
 }
