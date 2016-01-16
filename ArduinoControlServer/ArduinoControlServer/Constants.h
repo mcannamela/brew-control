@@ -11,6 +11,8 @@
 
 #define N_DPINS 16
 #define N_APINS 5
+#define MAX_LONG 4294967295
+
 
 const char  SET_PINMODE_OUT[] = "SET_PINMODE_OUT";
 const char  SET_PINMODE_IN[] = "SET_PINMODE_IN";
@@ -19,11 +21,13 @@ const char  SET_PINMODE_IN[] = "SET_PINMODE_IN";
 const char  SET_PIN_HIGH[] = "SET_PIN_HIGH";
 const char  SET_PIN_LOW[] = "SET_PIN_LOW";
 
-const int RESERVED_PINS[] = {2, 3, 10, 11, 12};//, 13};
-const int N_RESERVED_PINS = 5;
+const int RESERVED_PINS[] = {2, 3, 10, 11, 12, 13};
+const int N_RESERVED_PINS = 6;
 
 const int INTERRUPT_PINS[] = {2, 3};
 #define N_INTERRUPT_PINS 2
+
+const int LED_PIN = 9;
 
 
 enum COMMAND_RESULT {
