@@ -15,15 +15,20 @@ void initInterruptTimeArrays() {
   }
 }
 
+void tareLastInterruptTimes(){
+  unsigned long t = millis();
+  for (int i = 0; i < N_INTERRUPT_PINS; i++) {
+    _LAST_INTERRUPT_TIME[i] = t;
+  }
+}
+
 
 double updateAverage(double previousAverage, double thisPoint) {
   return _DECAY_WEIGHT * previousAverage + (1.0 - _DECAY_WEIGHT) * thisPoint;
 }
 
 
-
-void handleInterrupt(int interruptNr) {
-  unsigned long t = millis();
+void updateMeanInterruptTime(int interruptNr, unsigned long t){
   unsigned long delta;
 
   // only update if the clock has not overflowed
@@ -31,9 +36,23 @@ void handleInterrupt(int interruptNr) {
     delta = t - _LAST_INTERRUPT_TIME[interruptNr];
     _MEAN_INTERRUPT_TIME[interruptNr] = updateAverage(_MEAN_INTERRUPT_TIME[interruptNr], (double) delta);
   }
+  else{
+    //ensure we fix the overflow
+    _LAST_INTERRUPT_TIME[interruptNr] = t;
+  }
+}
 
+
+void handleInterrupt(int interruptNr) {
+   //toggle led for debugging
+//  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+
+  unsigned long t = millis();
+  updateMeanInterruptTime(interruptNr, t);
   _LAST_INTERRUPT_TIME[interruptNr] = t;
 }
+
+
 
 
 void handleInterruptZero() {
@@ -44,14 +63,17 @@ void handleInterruptOne() {
   handleInterrupt(1);
 }
 
-void pulseInterruptZeroRising(long pulseWidth) {
-  digitalWrite(INTERRUPT_PINS[0], LOW);
+void pulseInterruptRising(int interruptIndex, long pulseWidth) {
+  _LAST_INTERRUPT_TIME[interruptIndex] = MAX_LONG;
+  int pinNr = INTERRUPT_PINS[0];
+  
+  digitalWrite(pinNr, LOW);
   delay(1);
-  digitalWrite(INTERRUPT_PINS[0], HIGH);
+  digitalWrite(pinNr, HIGH);
   delay(1);
-  digitalWrite(INTERRUPT_PINS[0], LOW);
+  digitalWrite(pinNr, LOW);
   delay(pulseWidth);
-  digitalWrite(INTERRUPT_PINS[0], HIGH);
+  digitalWrite(pinNr, HIGH);
 }
 
 double getMeanInterruptTime(int interruptIndex) {
