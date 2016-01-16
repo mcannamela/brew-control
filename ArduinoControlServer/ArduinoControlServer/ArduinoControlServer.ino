@@ -109,20 +109,13 @@ void setup()
   Serial.println("END SETUP");
 }
 
-
-  
-void loop()
-{
-  
-  Serial.println("\n\nLOOP");
-  delay(10);
-  
+void testPinCommands(){
   char buff[64];
   int len = 64;
 
   char valbuff[32];
-  valbuff[0] = '1';
-  valbuff[1] = '3';
+  valbuff[0] = '0';
+  valbuff[1] = '9';
   valbuff[2] = '\0';
  
 
@@ -152,13 +145,46 @@ void loop()
   executeCommand(command, valbuff);
   delay(100);
 
-  pulseInterruptZeroRising(random(5,15));
-  Serial.print("Mean interrupt time: ");
-  Serial.println(getMeanInterruptTime(INTERRUPT_PINS[0]));
   
-  delay(2000);
+  
+}
 
+void testInterruptsUsingDigitalWrite(){
+  Serial.println("SELF TEST INTERRUPTS");
+  initInterruptTimeArrays();
+  tareLastInterruptTimes();
+  pinMode(INTERRUPT_PINS[0], OUTPUT);
+  for (int i=0; i<100; i++){
+    pulseInterruptRising(0, random(5,15));
+  }
+  Serial.print("    Mean interrupt time: ");
+  Serial.println(getMeanInterruptTime(0));
+}
+
+void testInterruptsUsingExternalSource(){
+  Serial.println("EXTERNAL TEST INTERRUPTS");
+  initInterruptTimeArrays();
+  tareLastInterruptTimes();
+  pinMode(INTERRUPT_PINS[0], INPUT);
+
+  delay(3000);
+  Serial.print("    Mean interrupt time: ");
+  Serial.println(getMeanInterruptTime(0));
+}
+
+void loop()
+{
   
+  Serial.println("\n\nLOOP");
+  delay(10);
+  
+  testPinCommands();
+  testInterruptsUsingDigitalWrite();
+  testInterruptsUsingExternalSource();
+  
+  delay(1000);
+
+ 
   /* process incoming connections one at a time forever */
   //webserver.processConnection(buff, &len);
 }
