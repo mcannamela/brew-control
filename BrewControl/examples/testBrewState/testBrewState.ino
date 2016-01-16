@@ -44,14 +44,34 @@ void printBoolArr(char* nm, bool* arr, int n) {
 }
 
 
+void printDoubleArr(char* nm, double* arr, int n) {
+  printName(nm);
+  Serial.print("len=");
+  Serial.print(n);
+  Serial.print(": ");
+  for (int i = 0; i < n; i++) {
+    Serial.print(arr[i]);
+    Serial.print(", ");
+  }
+}
+
+
+
 void loop()
 {
 
   Serial.println("\n\nLOOP");
+  double analogState[N_APINS];
+  for (int i=0; i<N_APINS; i++){
+    analogState[i] = 0.0;
+  }
+  
   bool digitalState[N_DPINS];
   for (int i=0; i<N_DPINS; i++){
     digitalState[i] = false;
   }
+
+  Serial.println("\nREAD DIGITAL STATE");
   printBoolArr("Init all false:             ", digitalState, N_DPINS); 
   
   delay(10);
@@ -63,6 +83,16 @@ void loop()
   writeByParity(false);
   readDigitalState(digitalState);
   printBoolArr("Evens false if not reserved:", digitalState, N_DPINS);
+
+  delay(300);
+  Serial.println("\n\nREAD ANALOG STATE");
+  printDoubleArr("Init all 0.0:     ", analogState, N_APINS); 
+  
+  delay(10);
+  readAnalogState(analogState);
+  printDoubleArr("Behold the noise: ", analogState, N_APINS); 
+
+  
   
   delay(2000);
 }
