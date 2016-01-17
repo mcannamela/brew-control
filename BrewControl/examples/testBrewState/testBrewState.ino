@@ -55,6 +55,43 @@ void printDoubleArr(char* nm, double* arr, int n) {
   }
 }
 
+void testTimeoutFunctions(){
+
+  unsigned long writeTime=1001; 
+  unsigned long timeoutTime = writeTime + INTERLOCK_TIMEOUT + 1;
+  unsigned long notTimeoutTime = writeTime + INTERLOCK_TIMEOUT + 1;
+
+
+  setLastWriteTime(LED_PIN, writeTime);
+  Serial.print("Last write time should be :");
+  Serial.println(writeTime);
+  Serial.print("And it is: ");
+  Serial.println(getLastWriteTime(LED_PIN));
+
+  if (isTimedOut(LED_PIN, timeoutTime)){
+    Serial.print("Timed out at ");
+    Serial.print(timeoutTime);
+    Serial.print(", OK");
+  }
+  else {
+    Serial.print("Not timed out at ");
+    Serial.print(timeoutTime);
+    Serial.print(", FAIL");
+  }
+
+  if (!isTimedOut(LED_PIN, notTimeoutTime)){
+    Serial.print("Not timed out at ");
+    Serial.print(notTimeoutTime);
+    Serial.print(", OK");
+  }
+  else {
+    Serial.print("Timed out at ");
+    Serial.print(notTimeoutTime);
+    Serial.print(", FAIL");
+  }
+
+}
+
 
 
 void loop()

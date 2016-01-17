@@ -134,6 +134,8 @@ void loop()
 
   printInt("LED_PIN", LED_PIN);
 
+  printULong("INTERLOCK_TIMEOUT", INTERLOCK_TIMEOUT);
+
 
   testIsPinReserved();
   testLEDPinNotReserved();
