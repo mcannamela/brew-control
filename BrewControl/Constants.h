@@ -27,7 +27,7 @@ const int INTERRUPT_PINS[] = {2, 3};
 
 const int LED_PIN = 9;
 
-const unsigned long INTERLOCK_TIMEOUT = 2*1000*60;
+const unsigned long INTERLOCK_TIMEOUT = 120000;
 
 
 enum COMMAND_RESULT {

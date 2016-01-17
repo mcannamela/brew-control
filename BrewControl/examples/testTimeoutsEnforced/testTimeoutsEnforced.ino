@@ -38,21 +38,21 @@ void testPinCommandsUpdateLastWriteTime() {
   Serial.println(command);
   executeCommand(command, valbuff);
 
-  Serial.print("Last write time should be close to ");
+  Serial.print("Last write time should be close to (and surely more than)");
   Serial.print(t0);
   Serial.print(": ");
   Serial.println(getLastWriteTime(LED_PIN));
   printState();
   
   Serial.print("Will now delay for ");
-  Serial.print(((double) INTERLOCK_TIMEOUT) / 2000);
-  Serial.println("s, halfway to timeout...");
+  Serial.print( INTERLOCK_TIMEOUT / 2);
+  Serial.println(", halfway to timeout...");
   delay(INTERLOCK_TIMEOUT / 2);
   
   Serial.println("...enforcing timeouts, pin should remain HIGH.");
   printState();
   Serial.print("Will now delay for ");
-  Serial.print(((double) INTERLOCK_TIMEOUT+10) / 2000);
+  Serial.print(10 + INTERLOCK_TIMEOUT / 2);
   Serial.println("s, until timed out...");
   delay(10 + INTERLOCK_TIMEOUT / 2);
   Serial.println("...thanks for your patience. Will now enforce timeouts, pin should go LOW");
@@ -65,7 +65,7 @@ void testPinCommandsUpdateLastWriteTime() {
   command.print(SET_PIN_LOW);
   Serial.println(command);
   executeCommand(command, valbuff);
-  Serial.print("Last write time should be close to ");
+  Serial.print("Last write time should be close to (and surely more than)");
   Serial.print(t0);
   Serial.print(": ");
   Serial.println(getLastWriteTime(LED_PIN));
