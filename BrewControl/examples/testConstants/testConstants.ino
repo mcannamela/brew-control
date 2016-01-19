@@ -99,7 +99,7 @@ void testLEDPinNotInterrup() {
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUDRATE);
   Serial.println("BEGIN SETUP");
   pinMode(LED_PIN, OUTPUT);
   Serial.println("END SETUP");

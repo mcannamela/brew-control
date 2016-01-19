@@ -10,6 +10,7 @@
 #define N_DPINS 16
 #define N_APINS 5
 #define MAX_LONG 4294967295
+#define SERIAL_BAUDRATE 115200
 
 
 const char  SET_PINMODE_OUT[] = "SET_PINMODE_OUT";

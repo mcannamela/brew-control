@@ -2,7 +2,7 @@
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("BEGIN SETUP");
   pinMode(LED_PIN, OUTPUT);
   initInterruptTimeArrays();

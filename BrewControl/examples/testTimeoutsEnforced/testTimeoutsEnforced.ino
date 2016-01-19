@@ -3,7 +3,7 @@
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUDRATE);
   Serial.println("BEGIN SETUP");
 
   Serial.println("END SETUP");

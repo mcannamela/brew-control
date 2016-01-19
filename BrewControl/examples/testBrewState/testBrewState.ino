@@ -3,7 +3,7 @@
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUDRATE);
   Serial.println("BEGIN SETUP");
   for (int i = 0; i < N_DPINS; i++) {
     if (!isPinReserved(i)) {
