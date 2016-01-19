@@ -64,7 +64,7 @@ void setup()
   Serial.println("BEGIN SETUP");
   
   /* initialize the Ethernet adapter */
-//  Ethernet.begin(mac, ip);
+  Ethernet.begin(mac, ip);
 
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
@@ -83,14 +83,17 @@ void setup()
   webserver.addCommand("parsed.html", &parsedCmd);
 
   /* start the webserver */
-//  webserver.begin();
+  webserver.begin();
   
   Serial.println("END SETUP");
 }
 
+char buff[64];
+int buff_len = 64;
+  
 void testHelloCmd(){
-  char buff[64];
-  int len = 64;
+  char test_buff[64];
+int test_buff_len = 64;
 
   char valbuff[32];
   valbuff[0] = '0';
@@ -98,7 +101,7 @@ void testHelloCmd(){
   valbuff[2] = '\0';
   bool tail_complete = true;
 
-  PString command(buff, len);
+  PString command(test_buff, test_buff_len);
   command.print("/");
   Serial.println("about to helloCmd");
   helloCmd(webserver, webserver.GET, "", tail_complete);
@@ -120,5 +123,5 @@ void loop()
 
  
   /* process incoming connections one at a time forever */
-  //webserver.processConnection(buff, &len);
+  webserver.processConnection(buff, &buff_len);
 }
