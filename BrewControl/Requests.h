@@ -3,6 +3,8 @@
 #define VERSION_STRING "0.1"
 #include <ArduinoJson.h>
 #include "Constants.h"
+#include "BrewState.h"
+#include "Interrupts.h"
 
 // ROM-based messages used by the application
 // These are needed to avoid having the strings use up our limited
@@ -46,17 +48,17 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
       return;
     case WebServer::GET:
       server.httpSuccess();
-      
+
       break;
     default:
       server.httpFail();
       server.printP(IndexFail);
-      return; 
+      return;
   }
 
   server.printP(IndexHead);
   server.printP(URLHelp);
-  
+
   server.print(SET_PINMODE_OUT);
   server.printP(Line_break);
   server.print(SET_PINMODE_IN);
@@ -74,10 +76,10 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
   server.printP(Line_break);
 
   server.printP(ReservedPins_begin);
-  for (int i=0; i<N_RESERVED_PINS;i++){
+  for (int i = 0; i < N_RESERVED_PINS; i++) {
     server.printP(Line_break);
     server.print(RESERVED_PINS[i]);
-    
+
   }
   server.printP(Line_break);
   server.printP(Line_break);
@@ -87,21 +89,22 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
   server.print("=");
   server.print(INTERRUPT_TRIGGER);
   server.print(":");
-  for (int i=0; i<N_INTERRUPT_PINS;i++){
+  for (int i = 0; i < N_INTERRUPT_PINS; i++) {
     server.printP(Line_break);
     server.print(INTERRUPT_PINS[i]);
-    
+
   }
   server.printP(Line_break);
   server.printP(Line_break);
 
-  
+
 
   server.printP(Page_end);
 }
 
 void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
+  Serial.println("getState");
   switch (type)
   {
     case WebServer::HEAD:
@@ -113,53 +116,43 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
     default:
       server.httpFail();
       server.printP(IndexFail);
-      return; 
+      return;
   }
 
-  server.printP(IndexHead);
-  server.printP(URLHelp);
-  
-  server.print(SET_PINMODE_OUT);
-  server.printP(Line_break);
-  server.print(SET_PINMODE_IN);
-  server.printP(Line_break);
-  server.print(SET_PIN_HIGH);
-  server.printP(Line_break);
-  server.print(SET_PIN_LOW);
-  server.printP(Line_break);
-  server.printP(Line_break);
+  Serial.println("Init state vars");
+  bool digitalState[N_DPINS];
+  double analogState[N_APINS];
+  double meanInterruptTimes[N_INTERRUPT_PINS];
+  StaticJsonBuffer<256> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  JsonArray& digital = root.createNestedArray("digital");
+  JsonArray& analog = root.createNestedArray("analog");
+  JsonArray& interrupt = root.createNestedArray("interrupt_periods");
 
-  server.printP(TimeoutHelp_begin);
-  server.print(INTERLOCK_TIMEOUT);
-  server.println(" ms");
-  server.printP(Line_break);
-  server.printP(Line_break);
+  Serial.println("Read d");
+  readDigitalState(digitalState);
+  Serial.println("Read a");
+//  readAnalogState(analogState);
+  Serial.println("Read i");
+  readMeanInterruptTimes(meanInterruptTimes);
 
-  server.printP(ReservedPins_begin);
-  for (int i=0; i<N_RESERVED_PINS;i++){
-    server.printP(Line_break);
-    server.print(RESERVED_PINS[i]);
-    
+  Serial.println("Encode d");
+  //for (int i=0; i<N_DPINS; i++){
+    //digital.add(digitalState[i]);
+  //}
+
+  Serial.println("Encode a");
+  /*for (int i=0; i<N_APINS; i++){
+    analog.add(analogState[i],6);
+  }*/
+
+  Serial.println("Encode i");
+  for (int i=0; i<N_INTERRUPT_PINS; i++){
+    interrupt.add(meanInterruptTimes[i], 6);
   }
-  server.printP(Line_break);
-  server.printP(Line_break);
 
-  server.printP(InterruptPins_begin);
-  server.print(INTERRUPT_TRIGGER_NAME);
-  server.print("=");
-  server.print(INTERRUPT_TRIGGER);
-  server.print(":");
-  for (int i=0; i<N_INTERRUPT_PINS;i++){
-    server.printP(Line_break);
-    server.print(INTERRUPT_PINS[i]);
-    
-  }
-  server.printP(Line_break);
-  server.printP(Line_break);
-
-  
-
-  server.printP(Page_end);
+  root.printTo(Serial);
+  root.printTo(server);
 }
 
 

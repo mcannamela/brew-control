@@ -80,6 +80,12 @@ void pulseInterruptRising(int interruptIndex, long pulseWidth) {
 double getMeanInterruptTime(int interruptIndex) {
   double t = _MEAN_INTERRUPT_TIME[interruptIndex];
   return t;
+} 
+
+void readMeanInterruptTimes(double* times_out){
+  for (int i=1; i<N_INTERRUPT_PINS; i++){
+    times_out[i] = getMeanInterruptTime(i);
+  }
 }
 
 #endif
