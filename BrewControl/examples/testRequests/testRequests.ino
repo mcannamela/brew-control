@@ -1,10 +1,5 @@
-/* Web_Parms_1.pde - very simple Webduino example of parameter passing and parsing */
-
 /*
- * This is mostly a tool for testing and debugging the library, but can
- * also be used as an example of coding for it.
- *
- * To use it,  enter one of the following USLs into your browser.
+ * enter one of the following USLs into your browser.
  * Replace "host" with the IP address assigned to the Arduino.
  *
  * http://host/
@@ -28,7 +23,7 @@
  * parameters, and display them.
  */
 
-#define WEBDUINO_SERIAL_DEBUGGING 1
+#define WEBDUINO_SERIAL_DEBUGGING 2
 #define WEBDUINO_FAIL_MESSAGE "<h1>Request Failed</h1>"
 #include <PString.h>
 #include "SPI.h" // new include
@@ -88,40 +83,13 @@ void setup()
   Serial.println("END SETUP");
 }
 
-char buff[64];
-int buff_len = 64;
-  
-void testHelloCmd(){
-  char test_buff[64];
-int test_buff_len = 64;
 
-  char valbuff[32];
-  valbuff[0] = '0';
-  valbuff[1] = '9';
-  valbuff[2] = '\0';
-  bool tail_complete = true;
-
-  PString command(test_buff, test_buff_len);
-  command.print("/");
-  Serial.println("about to helloCmd");
-  helloCmd(webserver, webserver.GET, "", tail_complete);
-  
-
-}
 
 
 void loop()
 {
-  
-  Serial.println("\n\nLOOP");
-  delay(10);
-  
-  testHelloCmd();
-  
-  
-  delay(1000);
-
- 
+  char buff[64];
+  int buff_len = 64;
   /* process incoming connections one at a time forever */
   webserver.processConnection(buff, &buff_len);
 }
