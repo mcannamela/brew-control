@@ -26,6 +26,9 @@ const int N_RESERVED_PINS = 6;
 const int INTERRUPT_PINS[] = {2, 3};
 #define N_INTERRUPT_PINS 2
 
+const int INTERRUPT_TRIGGER = RISING;
+const char INTERRUPT_TRIGGER_NAME[] = "RISING";
+
 const int LED_PIN = 9;
 
 const unsigned long INTERLOCK_TIMEOUT = 120000;

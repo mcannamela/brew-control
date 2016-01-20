@@ -7,7 +7,7 @@ void setup()
   pinMode(LED_PIN, OUTPUT);
   initInterruptTimeArrays();
   pinMode(INTERRUPT_PINS[0], OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(INTERRUPT_PINS[0]), handleInterruptZero, RISING);
+  attachInterrupt(digitalPinToInterrupt(INTERRUPT_PINS[0]), handleInterruptZero, INTERRUPT_TRIGGER);
   pulseInterruptRising(0, 1000);
   Serial.println("END SETUP");
 }
