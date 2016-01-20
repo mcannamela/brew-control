@@ -1,4 +1,4 @@
-from brew_control_client.pin_config import PinConfig
+from pin_config import PinConfig
 
 
 class RawState(object):
@@ -41,21 +41,29 @@ class BrewStateFactory(object):
         assert isinstance(self._pin_config, PinConfig)
 
     def __call__(self, raw_state):
-        hlt_temperature = self._get_temperature(raw_state, self._pin_config.HLT_thermistor_pin)
-        hex_outlet_temperature = self._get_temperature(raw_state, self._pin_config.HEX_outlet_thermistor_pin)
-        hex_interlock_temperature = self._get_temperature(raw_state, self._pin_config.hex_interlock_thermistor_pin)
-        pump_outlet_flowrate = self._get_pump_outlet_flowrate(raw_state)
-        hlt_actuated = raw_state.get_digital_state()[self._pin_config.HLT_actuation_pin]
-        hex_actuated = raw_state.get_digital_state()[self._pin_config.HEX_actuation_pin]
         return BrewState(
-                hlt_temperature,
-                hex_outlet_temperature,
-                hex_interlock_temperature,
-                pump_outlet_flowrate,
-                hlt_actuated,
-                hex_actuated
+                self._get_hlt_temperature(),
+                self._get_hex_outlet_temperature(),
+                self._get_hex_interlock_temperature(),
+                self._get_pump_outlet_flowrate(),
+                self._get_hlt_actuated(),
+                self._get_hex_actuated()
         )
 
+    def _get_hex_actuated(self, raw_state):
+        return raw_state.get_digital_state()[self._pin_config.HEX_actuation_pin]
+
+    def _get_hlt_actuated(self, raw_state):
+        return raw_state.get_digital_state()[self._pin_config.HLT_actuation_pin]
+
+    def _get_hex_interlock_temperature(self, raw_state):
+        return self._get_temperature(raw_state, self._pin_config.hex_interlock_thermistor_pin)
+
+    def _get_hex_outlet_temperature(self, raw_state):
+        return self._get_temperature(raw_state, self._pin_config.HEX_outlet_thermistor_pin)
+
+    def _get_hlt_temperature(self, raw_state):
+        return self._get_temperature(raw_state, self._pin_config.HLT_thermistor_pin)
 
     def _get_temperature(self, raw_state, pin_nr):
         thermistor = self._thermistors_by_pin[pin_nr]
