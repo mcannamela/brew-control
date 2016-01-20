@@ -1,7 +1,7 @@
 #ifndef REQUESTS_H
 #define REQUESTS_H
-
 #define VERSION_STRING "0.1"
+#include <ArduinoJson.h>
 #include "Constants.h"
 
 // ROM-based messages used by the application
@@ -100,42 +100,71 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
   server.printP(Page_end);
 }
 
-
-void rawCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
-  /* this line sends the standard "we're all OK" headers back to the
-     browser */
-  server.httpSuccess();
-
-  /* if we're handling a GET or POST, we can output our data here.
-     For a HEAD request, we just stop after outputting headers. */
-  if (type == WebServer::HEAD)
-    return;
-
-  server.printP(Page_start);
   switch (type)
   {
+    case WebServer::HEAD:
+      server.httpSuccess();
+      return;
     case WebServer::GET:
-      server.printP(Get_head);
-      break;
-    case WebServer::POST:
-      server.printP(Post_head);
+      server.httpSuccess();
       break;
     default:
-      server.printP(Unknown_head);
+      server.httpFail();
+      server.printP(IndexFail);
+      return; 
   }
 
-  server.printP(Raw_head);
-  server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
-  server.print(url_tail);
-  server.printP(Tail_end);
-  server.printP(Page_end);
+  server.printP(IndexHead);
+  server.printP(URLHelp);
+  
+  server.print(SET_PINMODE_OUT);
+  server.printP(Line_break);
+  server.print(SET_PINMODE_IN);
+  server.printP(Line_break);
+  server.print(SET_PIN_HIGH);
+  server.printP(Line_break);
+  server.print(SET_PIN_LOW);
+  server.printP(Line_break);
+  server.printP(Line_break);
 
+  server.printP(TimeoutHelp_begin);
+  server.print(INTERLOCK_TIMEOUT);
+  server.println(" ms");
+  server.printP(Line_break);
+  server.printP(Line_break);
+
+  server.printP(ReservedPins_begin);
+  for (int i=0; i<N_RESERVED_PINS;i++){
+    server.printP(Line_break);
+    server.print(RESERVED_PINS[i]);
+    
+  }
+  server.printP(Line_break);
+  server.printP(Line_break);
+
+  server.printP(InterruptPins_begin);
+  server.print(INTERRUPT_TRIGGER_NAME);
+  server.print("=");
+  server.print(INTERRUPT_TRIGGER);
+  server.print(":");
+  for (int i=0; i<N_INTERRUPT_PINS;i++){
+    server.printP(Line_break);
+    server.print(INTERRUPT_PINS[i]);
+    
+  }
+  server.printP(Line_break);
+  server.printP(Line_break);
+
+  
+
+  server.printP(Page_end);
 }
 
 
 
-void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+void pinCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
   URLPARAM_RESULT rc;
   char name[NAMELEN];

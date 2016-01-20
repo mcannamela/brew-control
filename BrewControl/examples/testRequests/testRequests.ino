@@ -5,22 +5,17 @@
  * http://host/
  * http://host/index.html
  *
- * These return a "success" HTTP result and display the parameters
- * (if any) passed to them as a single string,  without attempting to
- * parse them.  This is done with a call to defaultCmd.
+ * These show help for using the rest of the server.
  * 
  * 
- * http://host/raw.html
+ * http://host/state.json
  *
- * This is essentially the same as the index.html URL processing,
- * but is done by calling rawCmd.
+ * This returns the state of the arguino as a json object
  * 
  * 
- * http://host/parsed.html
+ * http://host/pincommand?command=#&othercommand=#
  *
- * This invokes parsedCmd,  which displays the "raw" parameter string,
- * but also uses the "nexyURLparam" routine to parse out the individual
- * parameters, and display them.
+ * This sends commands to the pins named in the query params and returns the status of the command
  */
 
 #define WEBDUINO_SERIAL_DEBUGGING 2
@@ -74,8 +69,8 @@ void setup()
   webserver.addCommand("index.html", &indexCmd);
 
   /*This command  is called if you try to load /raw.html */
-  webserver.addCommand("raw.html", &rawCmd);
-  webserver.addCommand("parsed.html", &parsedCmd);
+  webserver.addCommand("state.json", &stateCmd);
+  webserver.addCommand("pincommand", &pinCmd);
 
   /* start the webserver */
   webserver.begin();
@@ -88,8 +83,8 @@ void setup()
 
 void loop()
 {
-  char buff[64];
-  int buff_len = 64;
+  char buff[128];
+  int buff_len = 128;
   /* process incoming connections one at a time forever */
   webserver.processConnection(buff, &buff_len);
 }
