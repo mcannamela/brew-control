@@ -17,10 +17,15 @@ void loop()
   Serial.println("\n\nLOOP");
   delay(10);
   digitalWrite(LED_PIN, HIGH);
-  updateMeanInterruptTime(0,millis());
+  decayMeanInterruptTimes();
   Serial.print("Mean interrupt time after ");
   Serial.print(millis());
   Serial.print(": ");
   Serial.println(getMeanInterruptTime(0));
+
+  Serial.print("Mean interrupt freq");
+  Serial.print(": ");
+  Serial.println(1000.0/getMeanInterruptTime(0));
+  
   delay(250);
 }
