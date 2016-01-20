@@ -18,7 +18,7 @@
  * This sends commands to the pins named in the query params and returns the status of the command
  */
 
-#define WEBDUINO_SERIAL_DEBUGGING 2
+#define WEBDUINO_SERIAL_DEBUGGING 0
 #define WEBDUINO_FAIL_MESSAGE "<h1>Request Failed</h1>"
 #include <PString.h>
 #include "SPI.h" // new include
@@ -26,6 +26,7 @@
 #include "Ethernet.h"
 #include <WebServer.h>
 #include "Requests.h"
+#include "Interrupts.h"
 
 
 /* CHANGE THIS TO YOUR OWN UNIQUE VALUE.  The MAC number should be
@@ -55,6 +56,9 @@ void setup()
   
   /* initialize the Ethernet adapter */
   Ethernet.begin(mac, ip);
+  tareLastInterruptTimes();
+  delay(100);
+  decayMeanInterruptTimes();
 
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
@@ -87,4 +91,6 @@ void loop()
   int buff_len = 128;
   /* process incoming connections one at a time forever */
   webserver.processConnection(buff, &buff_len);
+  decayMeanInterruptTimes();
+  
 }
