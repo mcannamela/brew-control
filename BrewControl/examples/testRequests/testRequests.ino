@@ -63,7 +63,7 @@ void setup()
 
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
-  webserver.setDefaultCommand(&helloCmd);
+  webserver.setDefaultCommand(&indexCmd);
 
   /* setup our default command that will be run when the user accesses
    * a page NOT on the server */
@@ -71,7 +71,7 @@ void setup()
 
   /* run the same command if you try to load /index.html, a common
    * default page name */
-  webserver.addCommand("index.html", &helloCmd);
+  webserver.addCommand("index.html", &indexCmd);
 
   /*This command  is called if you try to load /raw.html */
   webserver.addCommand("raw.html", &rawCmd);

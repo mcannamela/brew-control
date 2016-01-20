@@ -10,6 +10,15 @@
 
 P(Page_start) = "<html><head><title>THIS IS BREW CONTROL " VERSION_STRING "</title></head><body>\n";
 P(Page_end) = "</body></html>";
+
+P(IndexHead) = "<h1>Welcome to BREW CONTROL</h1><br>\n";
+P(IndexFail) = "Only handle GET and HEAD here.";
+
+P(URLHelp) = "/state.json to read current state.<br>\n<br>\n /pincommand?command1=pin1&command1=pin2&command2=pin3 to set pin states.<br>\n<br>\nAvailable commands are: <br>\n";
+P(TimeoutHelp_begin) = "Pins written HIGH will timeout after ";
+P(ReservedPins_begin) = "Following pins are reserved and will not accept commands:";
+P(InterruptPins_begin) = "Following pins will be monitored for external interrupts triggering on ";
+
 P(Get_head) = "<h1>GET from ";
 P(Post_head) = "<h1>POST to ";
 P(Unknown_head) = "<h1>UNKNOWN request for ";
@@ -26,40 +35,69 @@ P(Post_params_begin) = "Parameters sent by POST:<br>\n";
 P(Line_break) = "<br>\n";
 
 /* commands are functions that get called by the webserver framework
- * they can read any posted data from client, and they output to the
- * server to send data back to the web browser. */
-void helloCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+   they can read any posted data from client, and they output to the
+   server to send data back to the web browser. */
+void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
-  Serial.println("helloCmd");
-  /* this line sends the standard "we're all OK" headers back to the
-     browser */
-  server.httpSuccess();
-
-  /* if we're handling a GET or POST, we can output our data here.
-     For a HEAD request, we just stop after outputting headers. */
-  if (type == WebServer::HEAD)
-    return;
-
-  server.printP(Page_start);
   switch (type)
-    {
+  {
+    case WebServer::HEAD:
+      server.httpSuccess();
+      return;
     case WebServer::GET:
-        Serial.println("    GET");
-        server.printP(Get_head);
-        break;
-    case WebServer::POST:
-        server.printP(Post_head);
-        break;
+      server.httpSuccess();
+      
+      break;
     default:
-        server.printP(Unknown_head);
-    }
+      server.httpFail();
+      server.printP(IndexFail);
+      return; 
+  }
 
-    server.printP(Default_head);
-    server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
-    server.print(url_tail);
-    server.printP(Tail_end);
-    server.printP(Page_end);
+  server.printP(IndexHead);
+  server.printP(URLHelp);
+  
+  server.print(SET_PINMODE_OUT);
+  server.printP(Line_break);
+  server.print(SET_PINMODE_IN);
+  server.printP(Line_break);
+  server.print(SET_PIN_HIGH);
+  server.printP(Line_break);
+  server.print(SET_PIN_LOW);
+  server.printP(Line_break);
+  server.printP(Line_break);
 
+  server.printP(TimeoutHelp_begin);
+  server.print(INTERLOCK_TIMEOUT);
+  server.println(" ms");
+  server.printP(Line_break);
+  server.printP(Line_break);
+
+  server.printP(ReservedPins_begin);
+  for (int i=0; i<N_RESERVED_PINS;i++){
+    server.printP(Line_break);
+    server.print(RESERVED_PINS[i]);
+    
+  }
+  server.printP(Line_break);
+  server.printP(Line_break);
+
+  server.printP(InterruptPins_begin);
+  server.print(INTERRUPT_TRIGGER_NAME);
+  server.print("=");
+  server.print(INTERRUPT_TRIGGER);
+  server.print(":");
+  for (int i=0; i<N_INTERRUPT_PINS;i++){
+    server.printP(Line_break);
+    server.print(INTERRUPT_PINS[i]);
+    
+  }
+  server.printP(Line_break);
+  server.printP(Line_break);
+
+  
+
+  server.printP(Page_end);
 }
 
 
@@ -76,22 +114,22 @@ void rawCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, b
 
   server.printP(Page_start);
   switch (type)
-    {
+  {
     case WebServer::GET:
-        server.printP(Get_head);
-        break;
+      server.printP(Get_head);
+      break;
     case WebServer::POST:
-        server.printP(Post_head);
-        break;
+      server.printP(Post_head);
+      break;
     default:
-        server.printP(Unknown_head);
-    }
+      server.printP(Unknown_head);
+  }
 
-    server.printP(Raw_head);
-    server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
-    server.print(url_tail);
-    server.printP(Tail_end);
-    server.printP(Page_end);
+  server.printP(Raw_head);
+  server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
+  server.print(url_tail);
+  server.printP(Tail_end);
+  server.printP(Page_end);
 
 }
 
@@ -114,39 +152,39 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
 
   server.printP(Page_start);
   switch (type)
-    {
+  {
     case WebServer::GET:
-        server.printP(Get_head);
-        break;
+      server.printP(Get_head);
+      break;
     case WebServer::POST:
-        server.printP(Post_head);
-        break;
+      server.printP(Post_head);
+      break;
     default:
-        server.printP(Unknown_head);
-    }
+      server.printP(Unknown_head);
+  }
 
-    server.printP(Parsed_head);
-    server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
-    server.print(url_tail);
-    server.printP(Tail_end);
+  server.printP(Parsed_head);
+  server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
+  server.print(url_tail);
+  server.printP(Tail_end);
 
   if (strlen(url_tail))
-    {
+  {
     server.printP(Parsed_tail_begin);
     while (strlen(url_tail))
-      {
+    {
       rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
       if (rc == URLPARAM_EOS)
         server.printP(Params_end);
-       else
-        {
+      else
+      {
         server.print(name);
         server.printP(Parsed_item_separator);
         server.print(value);
         server.printP(Tail_end);
-        }
       }
     }
+  }
   if (type == WebServer::POST)
   {
     server.printP(Post_params_begin);
@@ -175,22 +213,22 @@ void my_failCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
 
   server.printP(Page_start);
   switch (type)
-    {
+  {
     case WebServer::GET:
-        server.printP(Get_head);
-        break;
+      server.printP(Get_head);
+      break;
     case WebServer::POST:
-        server.printP(Post_head);
-        break;
+      server.printP(Post_head);
+      break;
     default:
-        server.printP(Unknown_head);
-    }
+      server.printP(Unknown_head);
+  }
 
-    server.printP(Default_head);
-    server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
-    server.print(url_tail);
-    server.printP(Tail_end);
-    server.printP(Page_end);
+  server.printP(Default_head);
+  server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
+  server.print(url_tail);
+  server.printP(Tail_end);
+  server.printP(Page_end);
 
 }
 
