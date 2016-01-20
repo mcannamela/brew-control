@@ -43,6 +43,12 @@ void updateMeanInterruptTime(int interruptNr, unsigned long t){
   }
 }
 
+void decayMeanInterruptTimes(){
+  for(int i=0; i<N_INTERRUPT_PINS; i++){
+    updateMeanInterruptTime(i, millis());
+  }
+}
+
 
 void handleInterrupt(int interruptNr) {
    //toggle led for debugging
@@ -83,7 +89,7 @@ double getMeanInterruptTime(int interruptIndex) {
 } 
 
 void readMeanInterruptTimes(double* times_out){
-  for (int i=1; i<N_INTERRUPT_PINS; i++){
+  for (int i=0; i<N_INTERRUPT_PINS; i++){
     times_out[i] = getMeanInterruptTime(i);
   }
 }
