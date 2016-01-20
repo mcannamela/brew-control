@@ -104,7 +104,7 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 
 void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
-  Serial.println("getState");
+//  Serial.println("getState");
   switch (type)
   {
     case WebServer::HEAD:
@@ -119,7 +119,7 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
       return;
   }
 
-  Serial.println("Init state vars");
+//  Serial.println("Init state vars");
   bool digitalState[N_DPINS];
   double analogState[N_APINS];
   double meanInterruptTimes[N_INTERRUPT_PINS];
@@ -127,31 +127,31 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
   JsonObject& root = jsonBuffer.createObject();
   JsonArray& digital = root.createNestedArray("digital");
   JsonArray& analog = root.createNestedArray("analog");
-  JsonArray& interrupt = root.createNestedArray("interrupt_periods");
+  JsonArray& interrupt = root.createNestedArray("interrupt_frequency");
 
-  Serial.println("Read d");
+//  Serial.println("Read d");
   readDigitalState(digitalState);
-  Serial.println("Read a");
-//  readAnalogState(analogState);
-  Serial.println("Read i");
+//  Serial.println("Read a");
+  readAnalogState(analogState);
+//  Serial.println("Read i");
   readMeanInterruptTimes(meanInterruptTimes);
 
-  Serial.println("Encode d");
-  //for (int i=0; i<N_DPINS; i++){
-    //digital.add(digitalState[i]);
-  //}
-
-  Serial.println("Encode a");
-  /*for (int i=0; i<N_APINS; i++){
-    analog.add(analogState[i],6);
-  }*/
-
-  Serial.println("Encode i");
-  for (int i=0; i<N_INTERRUPT_PINS; i++){
-    interrupt.add(meanInterruptTimes[i], 6);
+//  Serial.println("Encode d");
+  for (int i=0; i<N_DPINS; i++){
+    digital.add(digitalState[i]);
   }
 
-  root.printTo(Serial);
+//  Serial.println("Encode a");
+  for (int i=0; i<N_APINS; i++){
+    analog.add(analogState[i],3);
+  }
+
+//  Serial.println("Encode i");
+  for (int i=0; i<N_INTERRUPT_PINS; i++){
+    interrupt.add(1000.0/meanInterruptTimes[i], 6);
+  }
+
+  root.prettyPrintTo(Serial);
   root.printTo(server);
 }
 
