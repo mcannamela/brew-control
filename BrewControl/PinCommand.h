@@ -29,7 +29,7 @@ void setPinHigh(int pinNr) {
   setLastWriteTime(pinNr, millis());
 }
 
-int executeCommand(PString command, char* value) {
+COMMAND_RESULT executeCommand(PString command, char* value) {
   Serial.print("executeCommand( ");
   Serial.print(command);
   Serial.print(", ");
@@ -68,6 +68,17 @@ int executeCommand(PString command, char* value) {
 
   return COMMAND_OK;
 
+}
+
+COMMAND_RESULT executeCommand(char* command, int commandLen, char* value){
+  char buff[NAMELEN];
+  int len = NAMELEN;
+  COMMAND_RESULT retcode;
+
+  PString pcommand(buff, len);
+  pcommand.print(command);
+  retcode = executeCommand(pcommand, value);
+  return retcode;
 }
 
 int enforceTimeouts() {

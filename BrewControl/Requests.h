@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "BrewState.h"
 #include "Interrupts.h"
+#include "PinCommand.h"
 
 // ROM-based messages used by the application
 // These are needed to avoid having the strings use up our limited
@@ -25,15 +26,13 @@ P(Get_head) = "<h1>GET from ";
 P(Post_head) = "<h1>POST to ";
 P(Unknown_head) = "<h1>UNKNOWN request for ";
 P(Default_head) = "unidentified URL requested.</h1><br>\n";
-P(Raw_head) = "raw.html requested.</h1><br>\n";
-P(Parsed_head) = "parsed.html requested.</h1><br>\n";
+P(PinCommand_head) = "pincommand requested.</h1><br>\n";
 P(Good_tail_begin) = "URL tail = '";
 P(Bad_tail_begin) = "INCOMPLETE URL tail = '";
 P(Tail_end) = "'<br>\n";
-P(Parsed_tail_begin) = "URL parameters:<br>\n";
+P(PincommandParameters_begin) = "Issue Commands:<br>\n";
 P(Parsed_item_separator) = " = '";
-P(Params_end) = "End of parameters<br>\n";
-P(Post_params_begin) = "Parameters sent by POST:<br>\n";
+P(Params_end) = "End Commands.<br>\n";
 P(Line_break) = "<br>\n";
 
 /* commands are functions that get called by the webserver framework
@@ -104,7 +103,7 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 
 void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
-//  Serial.println("getState");
+  //  Serial.println("getState");
   switch (type)
   {
     case WebServer::HEAD:
@@ -119,7 +118,7 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
       return;
   }
 
-//  Serial.println("Init state vars");
+  //  Serial.println("Init state vars");
   bool digitalState[N_DPINS];
   double analogState[N_APINS];
   double meanInterruptTimes[N_INTERRUPT_PINS];
@@ -129,26 +128,26 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
   JsonArray& analog = root.createNestedArray("analog");
   JsonArray& interrupt = root.createNestedArray("interrupt_frequency");
 
-//  Serial.println("Read d");
+  //  Serial.println("Read d");
   readDigitalState(digitalState);
-//  Serial.println("Read a");
+  //  Serial.println("Read a");
   readAnalogState(analogState);
-//  Serial.println("Read i");
+  //  Serial.println("Read i");
   readMeanInterruptTimes(meanInterruptTimes);
 
-//  Serial.println("Encode d");
-  for (int i=0; i<N_DPINS; i++){
+  //  Serial.println("Encode d");
+  for (int i = 0; i < N_DPINS; i++) {
     digital.add(digitalState[i]);
   }
 
-//  Serial.println("Encode a");
-  for (int i=0; i<N_APINS; i++){
-    analog.add(analogState[i],3);
+  //  Serial.println("Encode a");
+  for (int i = 0; i < N_APINS; i++) {
+    analog.add(analogState[i], 3);
   }
 
-//  Serial.println("Encode i");
-  for (int i=0; i<N_INTERRUPT_PINS; i++){
-    interrupt.add(1000.0/meanInterruptTimes[i], 6);
+  //  Serial.println("Encode i");
+  for (int i = 0; i < N_INTERRUPT_PINS; i++) {
+    interrupt.add(1000.0 / meanInterruptTimes[i], 6);
   }
 
   root.prettyPrintTo(Serial);
@@ -160,62 +159,54 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 void pinCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
   URLPARAM_RESULT rc;
-  char name[NAMELEN];
+  char cmdName[NAMELEN];
   char value[VALUELEN];
+  COMMAND_RESULT retcode;
 
-  /* this line sends the standard "we're all OK" headers back to the
-     browser */
-  server.httpSuccess();
-
-  /* if we're handling a GET or POST, we can output our data here.
-     For a HEAD request, we just stop after outputting headers. */
-  if (type == WebServer::HEAD)
-    return;
-
-  server.printP(Page_start);
   switch (type)
   {
+    case WebServer::HEAD:
+      server.httpSuccess();
+      return;
     case WebServer::GET:
-      server.printP(Get_head);
-      break;
-    case WebServer::POST:
-      server.printP(Post_head);
+      server.httpSuccess();
       break;
     default:
-      server.printP(Unknown_head);
+      server.httpFail();
+      server.printP(IndexFail);
+      return;
   }
 
-  server.printP(Parsed_head);
+
+  server.printP(PinCommand_head);
   server.printP(tail_complete ? Good_tail_begin : Bad_tail_begin);
   server.print(url_tail);
   server.printP(Tail_end);
 
   if (strlen(url_tail))
   {
-    server.printP(Parsed_tail_begin);
-    while (strlen(url_tail))
-    {
-      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
-      if (rc == URLPARAM_EOS)
+    server.printP(PincommandParameters_begin);
+    while (strlen(url_tail)) {
+      rc = server.nextURLparam(&url_tail, cmdName, NAMELEN, value, VALUELEN);
+      if (rc == URLPARAM_EOS) {
         server.printP(Params_end);
-      else
-      {
-        server.print(name);
+      }
+      else {
+        retcode = executeCommand(cmdName, NAMELEN, value);
+        server.print(cmdName);
         server.printP(Parsed_item_separator);
         server.print(value);
+        server.printP(Line_break);
+        server.print("retcode ");
+        server.print(retcode);
+        if (retcode == COMMAND_OK) {
+          server.print(", OK");
+        }
+        else {
+          server.print(", FAIL");
+        }
         server.printP(Tail_end);
       }
-    }
-  }
-  if (type == WebServer::POST)
-  {
-    server.printP(Post_params_begin);
-    while (server.readPOSTparam(name, NAMELEN, value, VALUELEN))
-    {
-      server.print(name);
-      server.printP(Parsed_item_separator);
-      server.print(value);
-      server.printP(Tail_end);
     }
   }
   server.printP(Page_end);
