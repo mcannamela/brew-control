@@ -155,6 +155,42 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 }
 
 
+void reservedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  
+  switch (type)
+  {
+    case WebServer::HEAD:
+      server.httpSuccess();
+      return;
+    case WebServer::GET:
+      server.httpSuccess();
+      break;
+    default:
+      server.httpFail();
+      server.printP(IndexFail);
+      return;
+  }
+
+  StaticJsonBuffer<128> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  JsonArray& reserved = root.createNestedArray("reserved");
+  JsonArray& interrupt = root.createNestedArray("interrupt");
+
+  
+  for (int i = 0; i < N_RESERVED_PINS; i++) {
+    reserved.add(RESERVED_PINS[i]);
+  }
+
+  for (int i = 0; i < N_INTERRUPT_PINS; i++) {
+    interrupt.add(INTERRUPT_PINS[i]);
+  }
+
+  root.prettyPrintTo(Serial);
+  root.printTo(server);
+}
+
+
 
 void pinCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
