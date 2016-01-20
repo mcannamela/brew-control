@@ -63,18 +63,15 @@ void setup()
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
   webserver.setDefaultCommand(&indexCmd);
+  webserver.addCommand("index.html", &indexCmd);
+ 
+  webserver.addCommand("state.json", &stateCmd);
+  webserver.addCommand("reserved.json", &reservedCmd);
+  webserver.addCommand("pincommand", &pinCmd);
 
   /* setup our default command that will be run when the user accesses
    * a page NOT on the server */
   webserver.setFailureCommand(&my_failCmd);
-
-  /* run the same command if you try to load /index.html, a common
-   * default page name */
-  webserver.addCommand("index.html", &indexCmd);
-
-  /*This command  is called if you try to load /raw.html */
-  webserver.addCommand("state.json", &stateCmd);
-  webserver.addCommand("pincommand", &pinCmd);
 
   /* start the webserver */
   webserver.begin();
