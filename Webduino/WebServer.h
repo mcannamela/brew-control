@@ -619,33 +619,17 @@ void WebServer::processConnection(char *buff, int *bufflen)
         favicon(requestType);
       }
     }
-
-    #if WEBDUINO_SERIAL_DEBUGGING > 1
-      Serial.println("*** dispatch if prefix and request type ok ***");
-    #endif
     // Only try to dispatch command if request type and prefix are correct.
     // Fix by quarencia.
-    bool requestInvalid = requestType == INVALID;
-    bool prefixCorrect = strncmp(buff, m_urlPrefix, urlPrefixLen) != 0;
-    if (requestInvalid || prefixCorrect){
-      #if WEBDUINO_SERIAL_DEBUGGING > 1
-      Serial.print("request invalid? ");
-      Serial.println(requestInvalid);
-      Serial.print("prefix correct? ");
-      Serial.println(prefixCorrect);
-      #endif
+    if (requestType == INVALID ||
+        strncmp(buff, m_urlPrefix, urlPrefixLen) != 0)
+    {
       m_failureCmd(*this, requestType, buff, (*bufflen) >= 0);
     }
-    else{
-      bool dispatchSucceeded = dispatchCommand(requestType, buff + urlPrefixLen, (*bufflen) >= 0); 
-      #if WEBDUINO_SERIAL_DEBUGGING > 1
-      Serial.print("dispatchSucceeded? ");
-      Serial.println(dispatchSucceeded);
-      #endif
-      
-      if (!dispatchSucceeded){
-         m_failureCmd(*this, requestType, buff, (*bufflen) >= 0);
-      }    
+    else if (!dispatchCommand(requestType, buff + urlPrefixLen,
+             (*bufflen) >= 0))
+    {
+      m_failureCmd(*this, requestType, buff, (*bufflen) >= 0);
     }
 
     flushBuf();
