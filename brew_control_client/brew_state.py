@@ -42,12 +42,12 @@ class BrewStateFactory(object):
 
     def __call__(self, raw_state):
         return BrewState(
-                self._get_hlt_temperature(),
-                self._get_hex_outlet_temperature(),
-                self._get_hex_interlock_temperature(),
-                self._get_pump_outlet_flowrate(),
-                self._get_hlt_actuated(),
-                self._get_hex_actuated()
+                self._get_hlt_temperature(raw_state),
+                self._get_hex_outlet_temperature(raw_state),
+                self._get_hex_interlock_temperature(raw_state),
+                self._get_pump_outlet_flowrate(raw_state),
+                self._get_hlt_actuated(raw_state),
+                self._get_hex_actuated(raw_state)
         )
 
     def _get_hex_actuated(self, raw_state):
@@ -57,7 +57,7 @@ class BrewStateFactory(object):
         return raw_state.get_digital_state()[self._pin_config.HLT_actuation_pin]
 
     def _get_hex_interlock_temperature(self, raw_state):
-        return self._get_temperature(raw_state, self._pin_config.hex_interlock_thermistor_pin)
+        return self._get_temperature(raw_state, self._pin_config.HEX_interlock_thermistor_pin)
 
     def _get_hex_outlet_temperature(self, raw_state):
         return self._get_temperature(raw_state, self._pin_config.HEX_outlet_thermistor_pin)
