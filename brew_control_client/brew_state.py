@@ -72,7 +72,7 @@ class BrewStateFactory(object):
         return temperature
 
     def _get_pump_outlet_flowrate(self, raw_state):
-        pulse_frequency = raw_state.get_interrupt_state()[self._pin_config.flow_interrupt_pin]
+        pulse_frequency = raw_state.get_interrupt_state()[self._pin_config.flow_interrupt_pin_index]
         return self._flowrate_sensor.get_flowrate(pulse_frequency)
 
 

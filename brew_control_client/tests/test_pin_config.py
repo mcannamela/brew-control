@@ -18,6 +18,10 @@ class TestPinConfig(unittest.TestCase):
         interrupt_pins = set(get_interrupt_pins())
         self.assertTrue(self._pin_config.flow_interrupt_pin in interrupt_pins)
 
+    def test_flowrate_pin_index_matches(self):
+        interrupt_pins = get_interrupt_pins()
+        self.assertEqual(interrupt_pins.index(self._pin_config.flow_interrupt_pin), self._pin_config.flow_interrupt_pin_index)
+
     def test_interrupt_pins_are_reserved(self):
         reserved_pins = set(get_reserved_pins())
         interrupt_pins = set(get_interrupt_pins())

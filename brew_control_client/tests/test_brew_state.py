@@ -76,7 +76,7 @@ class TestBrewStateFactory(unittest.TestCase):
             if i == self._pin_config.flow_interrupt_pin:
                 self._interrupt_state.append(2.0)
             else:
-                self._analog_state.append(float('nan'))
+                self._interrupt_state.append(float('nan'))
 
     def _populate_analog_state(self):
         for i in range(5):

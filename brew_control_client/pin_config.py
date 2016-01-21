@@ -2,6 +2,7 @@
 class PinConfig(object):
 
     flow_interrupt_pin = 2
+    flow_interrupt_pin_index = 0
     HLT_actuation_pin = 4
     HEX_actuation_pin = 5
 
