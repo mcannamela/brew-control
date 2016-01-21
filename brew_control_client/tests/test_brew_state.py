@@ -69,11 +69,20 @@ class TestBrewStateFactory(unittest.TestCase):
 
     def test___call__(self):
         brew_state = self._factory(self._raw_state)
-        self.fail()
+        self.assertTrue(isinstance(brew_state, BrewState))
+
+        self.assertAlmostEqual(brew_state.hlt_temperature, 25.0)
+        self.assertLess(brew_state.hlt_temperature, brew_state.hex_interlock_temperature)
+        self.assertGreater(brew_state.hlt_temperature, brew_state.hex_outlet_temperature)
+
+        self.assertTrue(brew_state.hex_actuated)
+        self.assertFalse(brew_state.hlt_actuated)
+
+        self.assertAlmostEqual(self._flowrate_sensor.get_flowrate(2.0), brew_state.pump_outlet_flowrate)
 
     def _populate_interrupt_state(self):
         for i in range(2):
-            if i == self._pin_config.flow_interrupt_pin:
+            if i == self._pin_config.flow_interrupt_pin_index:
                 self._interrupt_state.append(2.0)
             else:
                 self._interrupt_state.append(float('nan'))
