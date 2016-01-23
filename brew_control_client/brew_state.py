@@ -30,6 +30,16 @@ class BrewState(object):
         self.hlt_actuated = hlt_actuated
         self.hex_actuated = hex_actuated
 
+    def __repr__(self):
+
+        return '\n'.join([
+            'HLT Temp: {}'.format(self.hlt_temperature),
+            'HEX Outlet Temp: {}'.format(self.hex_outlet_temperature),
+            'HEX Interlock Temp: {}'.format(self.hex_interlock_temperature),
+            'HLT Actuated: {}'.format(self.hlt_actuated),
+            'HEX Actuate: {}'.format(self.hex_actuated),
+        ])
+
 
 class BrewStateFactory(object):
     def __init__(self, pin_config, thermistors_by_pin, flowrate_sensor):
@@ -74,4 +84,16 @@ class BrewStateFactory(object):
         pulse_frequency = raw_state.get_interrupt_state()[self._pin_config.flow_interrupt_pin_index]
         return self._flowrate_sensor.get_flowrate(pulse_frequency)
 
+
+class BrewStateProvider(object):
+
+    def __init__(self, brew_state_factory, get_raw_state_fun):
+        self._factory = brew_state_factory
+        self._get_raw_state_fun = get_raw_state_fun
+
+    def _get_raw_state(self):
+        return self._get_raw_state_fun()
+
+    def get_brew_state(self):
+        return self._factory(self._get_raw_state())
 
