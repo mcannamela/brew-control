@@ -78,16 +78,16 @@ class CommandFactory(object):
         return CompoundPinCommand([hex_command, hlt_command])
 
     def get_hex_on_command(self):
-        return OnCommand(self._pin_config.HEX_actuator_pin)
+        return OnCommand(self._pin_config.HEX_actuation_pin)
 
     def get_hlt_on_command(self):
-        return OnCommand(self._pin_config.HLT_actuator_pin)
+        return OnCommand(self._pin_config.HLT_actuation_pin)
 
     def get_hex_off_command(self):
-        return OffCommand(self._pin_config.HEX_actuator_pin)
+        return OffCommand(self._pin_config.HEX_actuation_pin)
 
     def get_hlt_off_command(self):
-        return OffCommand(self._pin_config.HLT_actuator_pin)
+        return OffCommand(self._pin_config.HLT_actuation_pin)
 
 
 
