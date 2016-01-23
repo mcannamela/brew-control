@@ -43,3 +43,10 @@ class BangBangController(Controller):
 
     def _handle_should_not_actuate(self, brew_state):
         self._actuator.deactuate(brew_state)
+
+
+def extract_hlt_actual(brew_state):
+    return brew_state.hlt_temperature
+
+def extract_hex_actual(brew_state):
+    return brew_state.hex_outlet_temperature
