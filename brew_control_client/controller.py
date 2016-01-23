@@ -19,7 +19,7 @@ class Controller(object):
         return self._setpoint
 
     def get_actual(self, brew_state):
-        self._extract_actual_fun(brew_state)
+        return self._extract_actual_fun(brew_state)
 
     def _actuate(self, brew_state):
         self._actuator.actuate(brew_state)
@@ -39,7 +39,7 @@ class BangBangController(Controller):
         super(BangBangController, self).__init__(actuator, extract_actual_fun)
 
     def _should_actuate(self, brew_state):
-        return self.get_actual(brew_state) < self.get_setpoint() - self._deadband_width
+        return self.get_actual(brew_state) < (self.get_setpoint() - self._deadband_width)
 
     def _handle_should_not_actuate(self, brew_state):
-        self._actuator.deactute(brew_state)
+        self._actuator.deactuate(brew_state)
