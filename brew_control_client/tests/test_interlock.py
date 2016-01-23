@@ -1,6 +1,6 @@
 import unittest
 
-from Interlock import HEXInterlock
+from interlock import HEXInterlock
 from brew_state import BrewState
 
 

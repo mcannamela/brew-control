@@ -15,7 +15,7 @@ class SinglePinCommand(PinCommand):
     def __repr__(self):
         return "<{}: {}={}>".format(self.__class__.__name__, self._get_command_word(), self._get_pin_number())
 
-    def render_as_request_paramters(self):
+    def render_as_request_parameters(self):
         return {self._get_command_word(): [self._get_pin_number()]}
 
     def _get_command_word(self):

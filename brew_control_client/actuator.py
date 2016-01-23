@@ -1,6 +1,6 @@
 import logging
 
-from Interlock import InterlockError
+from interlock import InterlockError
 
 
 class Actuator(object):
