@@ -31,7 +31,12 @@ class TestRawState(unittest.TestCase):
 
 class TestBrewState(unittest.TestCase):
     def test___init__(self):
-        BrewState(25.0, 26.0, 27.0, .01, True, False)
+        BrewState(25.0, 26.0, 27.0, .01, True, False, None)
+
+    def test___repr__(self):
+        s = BrewState(25.0, 26.0, 27.0, .01, True, False, None)
+        repr(s)
+        str(s)
 
 
 class TestBrewStateFactory(unittest.TestCase):

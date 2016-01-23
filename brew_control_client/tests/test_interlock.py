@@ -20,7 +20,8 @@ class TestHEXInterlock(unittest.TestCase):
                 5.0,
                 6.0,
                 False,
-                False
+                False,
+            None
 
         )
 

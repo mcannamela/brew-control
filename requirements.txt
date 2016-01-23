@@ -1,4 +1,5 @@
 requests
 matplotlib
+pytz
 six>=1.10.0
 mock>=1.3.0

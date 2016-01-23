@@ -1,3 +1,6 @@
+import datetime
+import pytz
+
 from pin_config import PinConfig
 
 
@@ -21,7 +24,15 @@ class RawState(object):
 
 
 class BrewState(object):
-    def __init__(self, hlt_temperature, hex_outlet_temperature, hex_interlock_temperature, pump_outlet_flowrate, hlt_actuated, hex_actuated):
+    TIME = 'Time'
+    HLT_TEMP = 'HLT Temp'
+    HEX_OUTLET_TEMP = 'HEX Outlet Temp'
+    HEX_INTERLOCK_TEMP = 'HEX Interlock Temp'
+    HLT_ACTUATED = 'HLT Actuated'
+    HEX_ACTUATED = 'HEX Actuated'
+
+
+    def __init__(self, hlt_temperature, hex_outlet_temperature, hex_interlock_temperature, pump_outlet_flowrate, hlt_actuated, hex_actuated, dtime):
         self.hlt_temperature = hlt_temperature
         self.hex_outlet_temperature = hex_outlet_temperature
         self.hex_interlock_temperature = hex_interlock_temperature
@@ -30,15 +41,21 @@ class BrewState(object):
         self.hlt_actuated = hlt_actuated
         self.hex_actuated = hex_actuated
 
-    def __repr__(self):
+        self.dtime = dtime
 
-        return '\n'.join([
-            'HLT Temp: {}'.format(self.hlt_temperature),
-            'HEX Outlet Temp: {}'.format(self.hex_outlet_temperature),
-            'HEX Interlock Temp: {}'.format(self.hex_interlock_temperature),
-            'HLT Actuated: {}'.format(self.hlt_actuated),
-            'HEX Actuate: {}'.format(self.hex_actuated),
+    def __repr__(self):
+        s = '\n'.join([
+            '{}: {}'.format(self.TIME, self.dtime),
+            '{}: {}'.format(self.HLT_TEMP, self.hlt_temperature),
+            '{}: {}'.format(self.HEX_OUTLET_TEMP, self.hex_outlet_temperature),
+            '{}: {}'.format(self.HEX_INTERLOCK_TEMP, self.hex_interlock_temperature),
+            '{}: {}'.format(self.HLT_ACTUATED, self.hlt_actuated),
+            '{}: {}'.format(self.HEX_ACTUATED, self.hex_actuated),
         ])
+
+        return '<BrewState: {}>'.format(s)
+
+
 
 
 class BrewStateFactory(object):
@@ -56,7 +73,8 @@ class BrewStateFactory(object):
                 self._get_hex_interlock_temperature(raw_state),
                 self._get_pump_outlet_flowrate(raw_state),
                 self._get_hlt_actuated(raw_state),
-                self._get_hex_actuated(raw_state)
+                self._get_hex_actuated(raw_state),
+                self._get_time()
         )
 
     def _get_hex_actuated(self, raw_state):
@@ -83,6 +101,9 @@ class BrewStateFactory(object):
     def _get_pump_outlet_flowrate(self, raw_state):
         pulse_frequency = raw_state.get_interrupt_state()[self._pin_config.flow_interrupt_pin_index]
         return self._flowrate_sensor.get_flowrate(pulse_frequency)
+
+    def _get_time(self):
+        return datetime.datetime.now(tz=pytz.utc)
 
 
 class BrewStateProvider(object):

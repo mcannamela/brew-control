@@ -1,6 +1,7 @@
 import unittest
 from unittest import TestCase
 
+import datetime
 import mock
 
 from actuator import HEXActuator, HLTActuator
@@ -19,15 +20,16 @@ class BaseHeaterActuatorTestCase(TestCase):
         self._other_interlock = mock.Mock(spec_set=Interlock)
         self._interlocks = [self._interlock, self._other_interlock]
         self._actuator = self.get_actuator_constructor()(self._issue_command, self._command_factory, self._interlocks)
-
         self._brew_state = BrewState(
                 1.0,
                 2.0,
                 3.0,
                 4.0,
                 False,
-                True
+                True,
+                datetime.datetime.now()
         )
+
 
     def _assert_command_issued(self, c):
         self._issue_command.assert_called_once_with(c.render_as_request_parameters())
