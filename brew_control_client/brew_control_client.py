@@ -27,10 +27,12 @@ class BrewControlClient(object):
                 self._logger.info(repr(brew_state))
                 for c in self._controllers:
                     c.control(brew_state)
+
+                self._logger.info("Now sleep. Next control action in {} s".format(self._loop_delay_seconds))
+                time.sleep(self._loop_delay_seconds)
             except KeyboardInterrupt:
                 break
-            self._logger.info("Now sleep. Next control action in {} s".format(self._loop_delay_seconds))
-            time.sleep(self._loop_delay_seconds)
+
 
     def _get_brew_state(self):
         return self._get_brew_state_fun()
