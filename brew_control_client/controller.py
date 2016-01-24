@@ -48,5 +48,6 @@ class BangBangController(Controller):
 def extract_hlt_actual(brew_state):
     return brew_state.hlt_temperature
 
+
 def extract_hex_actual(brew_state):
     return brew_state.hex_outlet_temperature
