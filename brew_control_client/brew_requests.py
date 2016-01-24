@@ -1,5 +1,6 @@
 import requests
 
+from brew_state import RawState
 from ml_stripper import strip_tags
 
 brew_host = '192.168.11.101'
@@ -37,6 +38,9 @@ def get_index_str():
 
 def get_state():
     return get_state_response().json()
+
+def get_raw_state():
+    return RawState(get_state())
 
 
 def get_reserved_pins():

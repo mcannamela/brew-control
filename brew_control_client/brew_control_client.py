@@ -54,6 +54,7 @@ class BrewControlClientFactory(object):
                 self._get_deadband_width()
         )
         c.set_setpoint(setpoint)
+        return c
 
     def _get_hex_controller(self, setpoint):
         c = BangBangController(
@@ -62,6 +63,7 @@ class BrewControlClientFactory(object):
                 self._get_deadband_width()
         )
         c.set_setpoint(setpoint)
+        return c
 
     def _get_deadband_width(self):
         return .5

@@ -9,7 +9,7 @@ from brew_control_client import (BrewControlClientFactory,
                                  FlowrateSensor,
                                  Thermistor,
                                  get_pincommand_response,
-                                 get_state_response,
+                                 get_raw_state,
                                  get_index_response,
                                  BrewStateProvider,
                                  BrewStateFactory)
@@ -40,7 +40,7 @@ def get_client_factory():
     flowrate_sensor = FlowrateSensor(FLOWRATE_SENSOR_LITERS_PER_PULSE)
 
     brew_state_factory = BrewStateFactory(pin_config, thermistors_by_pin, flowrate_sensor)
-    get_brew_state = BrewStateProvider(brew_state_factory, get_state_response).get_brew_state
+    get_brew_state = BrewStateProvider(brew_state_factory, get_raw_state).get_brew_state
 
     client_factory = BrewControlClientFactory(pin_config,
                              get_pincommand_response,
