@@ -10,22 +10,38 @@ class InterlockError(RuntimeError):
     pass
 
 
-class HEXInterlock(Interlock):
-
-    def __init__(self, flowrate_threshold, low_temp_threshold, high_temp_threshold):
+class FlowrateInterlock(Interlock):
+    def __init__(self, flowrate_threshold):
         self._flowrate_threshold = flowrate_threshold
-        self._low_temp_threshold = low_temp_threshold
-        self._high_temp_threshold = high_temp_threshold
 
     def may_actuate(self, brew_state):
-        return self._is_flowing(brew_state) and self._is_temperature_in_range(brew_state)
+        return self._is_flowing(brew_state)
 
     def _is_flowing(self, brew_state):
         return brew_state.pump_outlet_flowrate >= self._flowrate_threshold
 
+class TemperatureInterlock(Interlock):
+    def __init__(self, low_fault_temp, high_fault_temp):
+        self._low_fault_temp = low_fault_temp
+        self._high_fault_temp = high_fault_temp
+
+    def may_actuate(self, brew_state):
+        return self._is_temperature_in_range(brew_state)
+
     def _is_temperature_in_range(self, brew_state):
-        t = brew_state.hex_interlock_temperature
-        return self._low_temp_threshold <= t <= self._high_temp_threshold
+        t = self._get_temperature(brew_state)
+        return self._low_fault_temp <= t <= self._high_fault_temp
+
+    def _get_temperature(self, brew_state):
+        raise NotImplementedError()
+
+class HEXOverheatingInterlock(TemperatureInterlock):
+    def _get_temperature(self, brew_state):
+        return brew_state.hex_interlock_temperature
+
+class PumpCavitationInterlock(TemperatureInterlock):
+    def _get_temperature(self, brew_state):
+        return brew_state.hex_outlet_temperature
 
 
 
