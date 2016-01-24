@@ -64,6 +64,6 @@ if __name__=="__main__":
 
     hlt_setpoint = strike_temp
     hex_setpoint = mashing_temp
-    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=30)
+    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=10)
 
     client.run()

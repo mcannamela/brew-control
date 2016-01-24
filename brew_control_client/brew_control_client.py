@@ -22,6 +22,8 @@ class BrewControlClient(object):
         while True:
             try:
                 brew_state = self._get_brew_state()
+                self._logger.info('\n\n')
+                self._logger.info(80*'-')
                 self._logger.info(repr(brew_state))
                 for c in self._controllers:
                     c.control(brew_state)
