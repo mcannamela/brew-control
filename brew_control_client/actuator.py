@@ -28,10 +28,10 @@ class Actuator(object):
             self._handle_deactuate_interlock_failure(brew_state)
 
     def _may_actuate(self, brew_state):
-        return all([i.may_actuate(brew_state) for i in self._interlocks])
+        return all([i.may_actuate(brew_state) for i in self._interlocks] + [True])
 
     def _may_deactuate(self, brew_state):
-        return all([i.may_deactuate(brew_state) for i in self._interlocks])
+        return all([i.may_deactuate(brew_state) for i in self._interlocks] + [True])
 
     def _handle_actuate_interlock_failure(self, brew_state):
         raise InterlockError("Interlock criteria for actuation not met by state: {}".format(brew_state))
