@@ -58,12 +58,13 @@ class CompoundPinCommand(PinCommand):
     def render_as_request_parameters(self):
         p = {}
         for c in self._commands:
-            this_p = c.render_as_request_parameters
-            for k, v in this_p:
+            this_p = c.render_as_request_parameters()
+            for k, v in this_p.items():
                 if k in p:
                     p[k].extend(v)
                 else:
-                    p[k] = [].extend(v)
+                    p[k] = [c for c in v]
+        return p
 
 
 class CommandFactory(object):
@@ -73,8 +74,8 @@ class CommandFactory(object):
         assert isinstance(self._pin_config, PinConfig)
 
     def get_setup_command(self):
-        hex_command = SetupOutputCommand(self._pin_config.HEX_actuator_pin)
-        hlt_command = SetupOutputCommand(self._pin_config.HLT_actuator_pin)
+        hex_command = SetupOutputCommand(self._pin_config.HEX_actuation_pin)
+        hlt_command = SetupOutputCommand(self._pin_config.HLT_actuation_pin)
         return CompoundPinCommand([hex_command, hlt_command])
 
     def get_hex_on_command(self):

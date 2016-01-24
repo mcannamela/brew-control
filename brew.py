@@ -32,6 +32,8 @@ def get_client_factory():
     logger = logging.getLogger('brew')
     logger.addHandler(logging.FileHandler(get_filename()))
     logger.addHandler(logging.StreamHandler(sys.stdout))
+    logger.setLevel(logging.INFO)
+    logger.info("Hello Brew!")
 
     pin_config = PinConfig()
     thermistors_by_pin = {pin: Thermistor(divider_resistance)
