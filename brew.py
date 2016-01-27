@@ -68,6 +68,12 @@ if __name__=="__main__":
 
     hlt_setpoint = test_temp
     hex_setpoint = test_temp
-    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=.1)
+    client = factory(
+            hlt_setpoint,
+            hex_setpoint,
+            loop_delay_seconds=.1,
+            hangover_delay_seconds=10
+    )
 
-    client.run()
+    for brew_state in client:
+        print 'brew!'

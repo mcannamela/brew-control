@@ -11,12 +11,14 @@ from brew_state import BrewStateProvider
 
 class BrewControlClient(object):
 
-    def __init__(self, controllers, get_brew_state_fun, setup_fun, loop_delay_seconds=30, logger=None):
+    def __init__(self, controllers, get_brew_state_fun, setup_fun, loop_delay_seconds=30, hangover_delay_seconds=60, logger=None):
         self._controllers = controllers
         self._get_brew_state_fun = get_brew_state_fun
         self._setup_fun = setup_fun
         self._logger = logger if logger is not None else logging.getLogger('brew_control_client')
         self._loop_delay_seconds = loop_delay_seconds
+        self._hangover_delay_seconds = hangover_delay_seconds
+        self._last_loop_time = None
 
     def setup(self):
         self._setup_fun()
@@ -29,20 +31,35 @@ class BrewControlClient(object):
         self._logger.info('\n')
         for c in self._controllers:
             c.control(brew_state)
+
+        self._last_loop_time = time.time()
         return brew_state
 
-    def run(self):
+    def __iter__(self):
         self.setup()
         while True:
             try:
                 brew_state = self.execute_loop()
-                self._logger.info("Now sleep. Next control action in {} s".format(self._loop_delay_seconds))
-                time.sleep(self._loop_delay_seconds)
+                yield brew_state
             except KeyboardInterrupt:
-                break
-            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, socket.timeout, socket.error) as e:
-                self._logger.info("Trapped ConnectionError or Timeout! Will try to sleep it off")
-                time.sleep(10)
+                raise StopIteration
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, socket.timeout, socket.error) as exc:
+                self._handle_communiction_error(exc)
+            else:
+                self._delay_if_necessary()
+
+    def _delay_if_necessary(self):
+        t = time.time()
+        corrected_delay = self._loop_delay_seconds - (t - self._last_loop_time)
+        if corrected_delay > 1e-6:
+            self._logger.info("Now sleep. Next control action in {} s".format(corrected_delay))
+            time.sleep(corrected_delay)
+        else:
+            self._logger.info("Sleep unnecessary. Taking next control action now!")
+
+    def _handle_communiction_error(self, exc):
+        self._logger.error("Trapped ConnectionError or Timeout! Will try to sleep it off: {}".format(exc))
+        time.sleep(self._hangover_delay_seconds)
 
     def _get_brew_state(self):
         return self._get_brew_state_fun()
