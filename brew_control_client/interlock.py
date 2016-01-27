@@ -16,7 +16,7 @@ class FlowrateInterlock(Interlock):
         self._flowrate_threshold = flowrate_threshold
 
     def may_actuate(self, brew_state):
-        return self._is_flowing(brew_state) or True
+        return self._is_flowing(brew_state)
 
     def _is_flowing(self, brew_state):
         return brew_state.pump_outlet_flowrate >= self._flowrate_threshold
