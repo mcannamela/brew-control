@@ -24,13 +24,13 @@ class RawState(object):
 
 
 class BrewState(object):
-    TIME = 'Time'
-    HLT_TEMP = 'HLT Temp'
-    HEX_OUTLET_TEMP = 'HEX Outlet Temp'
-    HEX_INTERLOCK_TEMP = 'HEX Interlock Temp'
-    FLOWRATE = 'Pump Outlet Flowrate'
-    HLT_ACTUATED = 'HLT Actuated'
-    HEX_ACTUATED = 'HEX Actuated'
+    TIME = 'TIME'
+    HLT_TEMP = 'HLT_TEMP'
+    HEX_OUTLET_TEMP = 'HEX_TEMP'
+    HEX_INTERLOCK_TEMP = 'HEX_INTERLOCK_TEMP'
+    FLOWRATE = 'PUMP_OUTLET_FLOWRATE'
+    HLT_ACTUATED = 'HLT_ACTUATED'
+    HEX_ACTUATED = 'HEX_ACTUATED'
 
 
     def __init__(self, hlt_temperature, hex_outlet_temperature, hex_interlock_temperature, pump_outlet_flowrate, hlt_actuated, hex_actuated, dtime):

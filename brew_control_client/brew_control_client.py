@@ -26,6 +26,7 @@ class BrewControlClient(object):
         self._logger.info('\n\n')
         self._logger.info(80*'-')
         self._logger.info(repr(brew_state))
+        self._logger.info('\n')
         for c in self._controllers:
             c.control(brew_state)
         return brew_state
