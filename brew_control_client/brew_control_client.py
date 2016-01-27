@@ -75,7 +75,7 @@ class BrewControlClientFactory(object):
         self._get_brew_state_fun = BrewStateProvider(self._brew_state_factory, self._brew_server.get_raw_state).get_brew_state
         self._logger = logger if logger is not None else logging.getLogger('brew_control_client_factory')
 
-    def __call__(self, hlt_setpoint, hex_setpoint, loop_delay_seconds=30):
+    def __call__(self, hlt_setpoint, hex_setpoint, loop_delay_seconds=30, hangover_delay_seconds=60):
         controllers = self._get_controllers(hlt_setpoint, hex_setpoint)
 
         return BrewControlClient(
@@ -83,6 +83,7 @@ class BrewControlClientFactory(object):
                 self._get_brew_state_fun,
                 self._setup,
                 loop_delay_seconds=loop_delay_seconds,
+                hangover_delay_seconds=hangover_delay_seconds,
                 logger=self._logger
         )
 
