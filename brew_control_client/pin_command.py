@@ -6,6 +6,12 @@ class PinCommand(object):
     def render_as_request_parameters(self):
         raise NotImplementedError()
 
+class CommandWords(object):
+    SET_PINMODE_OUT = 'SET_PINMODE_OUT'
+    SET_PINMODE_IN = 'SET_PINMODE_IN'
+    SET_PIN_HIGH = 'SET_PIN_HIGH'
+    SET_PIN_LOW = 'SET_PIN_LOW'
+
 
 class SinglePinCommand(PinCommand):
 
@@ -28,23 +34,23 @@ class SinglePinCommand(PinCommand):
 class OnCommand(SinglePinCommand):
 
     def _get_command_word(self):
-        return 'SET_PIN_HIGH'
+        return CommandWords.SET_PIN_HIGH
 
 
 class OffCommand(SinglePinCommand):
 
     def _get_command_word(self):
-        return 'SET_PIN_LOW'
+        return CommandWords.SET_PIN_LOW
 
 
 class SetupOutputCommand(SinglePinCommand):
     def _get_command_word(self):
-        return 'SET_PINMODE_OUT'
+        return CommandWords.SET_PINMODE_OUT
 
 
 class SetupInputCommand(SinglePinCommand):
     def _get_command_word(self):
-        return 'SET_PINMODE_IN'
+        return CommandWords.SET_PINMODE_IN
 
 
 class CompoundPinCommand(PinCommand):
