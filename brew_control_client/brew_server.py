@@ -1,4 +1,4 @@
-from brew_control_client.brew_requests import get_index_str, get_reserved_pins, get_interrupt_pins, get_raw_state, \
+from brew_requests import get_index_str, get_reserved_pins, get_interrupt_pins, get_raw_state, \
     issue_commands
 
 

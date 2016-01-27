@@ -1,8 +1,8 @@
 import sys
 
-from brew_control_client.brew_requests import CommandFailed
-from brew_control_client.brew_state import RawState
-from brew_control_client.pin_command import CommandWords
+from brew_requests import CommandFailed
+from brew_state import RawState
+from pin_command import CommandWords
 
 
 class ReservedPinError(ValueError):
