@@ -51,6 +51,9 @@ class FakeServer(object):
     def set_digital_state(self, pin_nr, state):
         self._digital_state[pin_nr] = bool(state)
 
+    def set_pinmode(self, pin_nr, mode):
+        self._pinmode[pin_nr] = mode
+
     def set_analog_state(self, pin_nr, state):
         self._analog_state[pin_nr] = float(state)
 
