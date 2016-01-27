@@ -47,7 +47,6 @@ def get_client_factory():
     brew_state_factory = BrewStateFactory(pin_config, thermistors_by_pin, flowrate_sensor)
     brew_server = BrewServer()
     command_factory = CommandFactory(pin_config)
-    BrewStateProvider(brew_state_factory, brew_state_factory, ).get_brew_state
 
     client_factory = BrewControlClientFactory(command_factory,
                              brew_state_factory,
@@ -69,6 +68,6 @@ if __name__=="__main__":
 
     hlt_setpoint = test_temp
     hex_setpoint = test_temp
-    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=2)
+    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=.1)
 
     client.run()
