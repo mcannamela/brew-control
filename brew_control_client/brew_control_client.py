@@ -33,8 +33,8 @@ class BrewControlClient(object):
                 time.sleep(self._loop_delay_seconds)
             except KeyboardInterrupt:
                 break
-            except requests.exceptions.ConnectionError:
-                self._logger.info("Trapped ConnectionError! Will try to sleep it off")
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                self._logger.info("Trapped ConnectionError or Timeout! Will try to sleep it off")
                 time.sleep(10)
 
 
