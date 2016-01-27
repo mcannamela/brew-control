@@ -64,6 +64,11 @@ COMMAND_RESULT executeCommand(PString command, char* value) {
   else if (areCommandsEqual(command, SET_PIN_LOW)) {
     setPinLow(pinNr);
   }
+  else{
+    Serial.println("Fail, unknown command.");
+    Serial.println("");
+    return UNKNOWN_COMMAND;
+  }
   Serial.println("");
 
   return COMMAND_OK;

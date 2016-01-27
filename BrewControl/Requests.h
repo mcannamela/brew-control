@@ -238,8 +238,14 @@ void pinCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, b
         if (retcode == COMMAND_OK) {
           server.print(", OK");
         }
+        else if (retcode == FAIL_PIN_RESERVED){
+          server.print(", FAIL, pin is reserved");
+        }
+        else if (retcode == UNKNOWN_COMMAND){
+          server.print(", FAIL, command unknown");
+        }
         else {
-          server.print(", FAIL");
+          server.print(", FAIL, unknown retcode");
         }
         server.printP(Tail_end);
       }

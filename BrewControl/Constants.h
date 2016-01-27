@@ -33,10 +33,22 @@ const int LED_PIN = 9;
 
 const unsigned long INTERLOCK_TIMEOUT = 120000;
 
+/* CHANGE THIS TO YOUR OWN UNIQUE VALUE.  The MAC number should be
+   different from any other devices on your network or you'll have
+   problems receiving packets. */
+static uint8_t mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };
+
+/* CHANGE THIS TO MATCH YOUR HOST NETWORK.  Most home networks are in
+   the 192.168.0.XXX or 192.168.1.XXX subrange.  Pick an address
+   that's not in use and isn't going to be automatically allocated by
+   DHCP from your router. */
+static uint8_t ip[] = { 192, 168, 11, 111 };
+
 
 enum COMMAND_RESULT {
   COMMAND_OK,
   FAIL_PIN_RESERVED,
+  UNKNOWN_COMMAND
 };
 
 
