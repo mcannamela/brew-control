@@ -1,10 +1,11 @@
 import logging
+import requests
 
 import time
 
 from actuator import HLTActuator, HEXActuator
 from controller import BangBangController, extract_hlt_actual, extract_hex_actual
-from interlock import FlowrateInterlock, HEXOverheatingInterlock, PumpCavitationInterlock
+from interlock import FlowrateInterlock, HEXOverheatingInterlock, PumpCavitationInterlock, HLTThermistorFaultInterlock
 from pin_command import CommandFactory
 
 
@@ -32,6 +33,9 @@ class BrewControlClient(object):
                 time.sleep(self._loop_delay_seconds)
             except KeyboardInterrupt:
                 break
+            except requests.exceptions.ConnectionError:
+                self._logger.info("Trapped ConnectionError! Will try to sleep it off")
+                time.sleep(10)
 
 
     def _get_brew_state(self):
@@ -97,7 +101,7 @@ class BrewControlClientFactory(object):
     def _get_hex_actuator(self):
         return HEXActuator(self._issue_command_fun,
                            self._get_command_factory(),
-                           self._get_hlt_interlocks(),
+                           self._get_hex_interlocks(),
                            logger=self._logger
                            )
 
@@ -105,7 +109,10 @@ class BrewControlClientFactory(object):
         return CommandFactory(self._pin_config)
 
     def _get_hlt_interlocks(self):
-        return []
+        return [
+            HLTThermistorFaultInterlock(self._get_low_thermistor_fault_temp(),
+                                        self._get_high_hlt_thermistor_fault_temp())
+        ]
 
     def _get_hex_interlocks(self):
         return [
@@ -115,10 +122,13 @@ class BrewControlClientFactory(object):
         ]
 
     def _get_flowrate_threshold(self):
-        return 1e-2
+        return -1 #1e-2
 
     def _get_low_thermistor_fault_temp(self):
         return 5.0
+
+    def _get_high_hlt_thermistor_fault_temp(self):
+        return 100.0
 
     def _get_hex_overheat_temp(self):
         return 95.0

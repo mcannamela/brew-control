@@ -3,7 +3,7 @@ import requests
 from brew_state import RawState
 from ml_stripper import strip_tags
 
-brew_host = '192.168.11.101'
+brew_host = '192.168.11.111'
 host_url_head = 'http://'+brew_host
 state_url = 'state.json'
 reserved_url = 'reserved.json'
@@ -39,6 +39,7 @@ def get_index_str():
 def get_state():
     return get_state_response().json()
 
+
 def get_raw_state():
     return RawState(get_state())
 
@@ -49,3 +50,13 @@ def get_reserved_pins():
 
 def get_interrupt_pins():
     return get_reserved_response().json()['interrupt']
+
+
+class CommandFailed(RuntimeError):
+    pass
+
+def issue_commands(commands=None):
+    response = get_pincommand_response(commands)
+    if not 'retcode 0, OK' in response.text:
+        raise CommandFailed(response.text)
+

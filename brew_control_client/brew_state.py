@@ -28,6 +28,7 @@ class BrewState(object):
     HLT_TEMP = 'HLT Temp'
     HEX_OUTLET_TEMP = 'HEX Outlet Temp'
     HEX_INTERLOCK_TEMP = 'HEX Interlock Temp'
+    FLOWRATE = 'Pump Outlet Flowrate'
     HLT_ACTUATED = 'HLT Actuated'
     HEX_ACTUATED = 'HEX Actuated'
 
@@ -49,6 +50,7 @@ class BrewState(object):
             '{}: {}'.format(self.HLT_TEMP, self.hlt_temperature),
             '{}: {}'.format(self.HEX_OUTLET_TEMP, self.hex_outlet_temperature),
             '{}: {}'.format(self.HEX_INTERLOCK_TEMP, self.hex_interlock_temperature),
+            '{}: {}'.format(self.FLOWRATE, self.pump_outlet_flowrate),
             '{}: {}'.format(self.HLT_ACTUATED, self.hlt_actuated),
             '{}: {}'.format(self.HEX_ACTUATED, self.hex_actuated),
         ])

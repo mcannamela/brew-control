@@ -39,12 +39,12 @@ class OffCommand(SinglePinCommand):
 
 class SetupOutputCommand(SinglePinCommand):
     def _get_command_word(self):
-        return 'SET_PINMODE_OUTPUT'
+        return 'SET_PINMODE_OUT'
 
 
 class SetupInputCommand(SinglePinCommand):
     def _get_command_word(self):
-        return 'SET_PINMODE_INPUT'
+        return 'SET_PINMODE_IN'
 
 
 class CompoundPinCommand(PinCommand):
