@@ -8,6 +8,7 @@ host_url_head = 'http://'+brew_host
 state_url = 'state.json'
 reserved_url = 'reserved.json'
 pincommand_url = 'pincommand'
+timeout_seconds = 5.0
 
 
 def get_index_response():
@@ -15,11 +16,11 @@ def get_index_response():
 
 
 def get_state_response():
-    return requests.get('/'.join([host_url_head, state_url]))
+    return requests.get('/'.join([host_url_head, state_url]), timeout=timeout_seconds)
 
 
 def get_reserved_response():
-    return requests.get('/'.join([host_url_head, reserved_url]))
+    return requests.get('/'.join([host_url_head, reserved_url]), timeout=timeout_seconds)
 
 
 def get_pincommand_response(commands=None):
@@ -29,7 +30,7 @@ def get_pincommand_response(commands=None):
      ?key1=value1&key2=value2&key2=value3
      """
     commands = {} if commands is None else commands
-    return requests.get('/'.join([host_url_head, pincommand_url]), params=commands)
+    return requests.get('/'.join([host_url_head, pincommand_url]), params=commands, timeout=timeout_seconds)
 
 
 def get_index_str():
