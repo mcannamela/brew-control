@@ -7,8 +7,7 @@ import time
 from actuator import HLTActuator, HEXActuator
 from controller import BangBangController, extract_hlt_actual, extract_hex_actual
 from interlock import FlowrateInterlock, HEXOverheatingInterlock, PumpCavitationInterlock, HLTThermistorFaultInterlock
-from pin_command import CommandFactory
-
+from brew_state import BrewStateProvider
 
 class BrewControlClient(object):
 
@@ -19,17 +18,23 @@ class BrewControlClient(object):
         self._logger = logger if logger is not None else logging.getLogger('brew_control_client')
         self._loop_delay_seconds = loop_delay_seconds
 
-    def run(self):
+    def setup(self):
         self._setup_fun()
+
+    def execute_loop(self):
+        brew_state = self._get_brew_state()
+        self._logger.info('\n\n')
+        self._logger.info(80*'-')
+        self._logger.info(repr(brew_state))
+        for c in self._controllers:
+            c.control(brew_state)
+        return brew_state
+
+    def run(self):
+        self.setup()
         while True:
             try:
-                brew_state = self._get_brew_state()
-                self._logger.info('\n\n')
-                self._logger.info(80*'-')
-                self._logger.info(repr(brew_state))
-                for c in self._controllers:
-                    c.control(brew_state)
-
+                brew_state = self.execute_loop()
                 self._logger.info("Now sleep. Next control action in {} s".format(self._loop_delay_seconds))
                 time.sleep(self._loop_delay_seconds)
             except KeyboardInterrupt:
@@ -38,17 +43,18 @@ class BrewControlClient(object):
                 self._logger.info("Trapped ConnectionError or Timeout! Will try to sleep it off")
                 time.sleep(10)
 
-
     def _get_brew_state(self):
         return self._get_brew_state_fun()
 
 
 class BrewControlClientFactory(object):
 
-    def __init__(self, pin_config, issue_command_fun, get_brew_state_fun, logger=None):
-        self._pin_config = pin_config
-        self._issue_command_fun = issue_command_fun
-        self._get_brew_state_fun = get_brew_state_fun
+    def __init__(self, command_factory, brew_state_factory, brew_server, logger=None):
+        self._command_factory = command_factory
+        self._brew_state_factory = brew_state_factory
+        self._brew_server = brew_server
+        self._issue_command_fun = self._brew_server.issue_pin_commands
+        self._get_brew_state_fun = BrewStateProvider(self._brew_state_factory, self._brew_server.get_raw_state).get_brew_state
         self._logger = logger if logger is not None else logging.getLogger('brew_control_client_factory')
 
     def __call__(self, hlt_setpoint, hex_setpoint, loop_delay_seconds=30):
@@ -107,7 +113,7 @@ class BrewControlClientFactory(object):
                            )
 
     def _get_command_factory(self):
-        return CommandFactory(self._pin_config)
+        return self._command_factory
 
     def _get_hlt_interlocks(self):
         return [
