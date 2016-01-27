@@ -1,7 +1,7 @@
 import unittest
 
 from brew_requests import get_reserved_pins, get_interrupt_pins
-from pin_config import PinConfig, THERMISTOR_RESISTANCES
+from pin_config import PinConfig, THERMISTOR_RESISTANCES, RESERVED_PINS, INTERRUPT_PINS
 
 
 class TestPinConfig(unittest.TestCase):
@@ -26,6 +26,17 @@ class TestPinConfig(unittest.TestCase):
         reserved_pins = set(get_reserved_pins())
         interrupt_pins = set(get_interrupt_pins())
         self.assertTrue(interrupt_pins <= reserved_pins)
+
+
+class TestReservedAndInterruptPins(unittest.TestCase):
+
+    def test_reserved_pins(self):
+        reserved_pins = set(get_reserved_pins())
+        self.assertEqual(set(RESERVED_PINS), reserved_pins)
+
+    def test_interrupt_pins(self):
+        interrupt_pins = set(get_interrupt_pins())
+        self.assertEqual(set(INTERRUPT_PINS), interrupt_pins)
 
 
 class TestThermistorDividerResistances(unittest.TestCase):
