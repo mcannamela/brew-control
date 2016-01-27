@@ -8,13 +8,14 @@ from brew_control_client import (BrewControlClientFactory,
                                  FLOWRATE_SENSOR_LITERS_PER_PULSE,
                                  FlowrateSensor,
                                  Thermistor,
-                                 get_pincommand_response,
                                  get_raw_state,
                                  get_index_response,
                                  BrewStateProvider,
-                                 BrewStateFactory)
+                                 BrewStateFactory,
+                                 issue_commands)
 import os
 import argparse
+
 
 parser = argparse.ArgumentParser(description='Plot the brewlog.')
 parser.add_argument('--logfile',
@@ -45,7 +46,7 @@ def get_client_factory():
     get_brew_state = BrewStateProvider(brew_state_factory, get_raw_state).get_brew_state
 
     client_factory = BrewControlClientFactory(pin_config,
-                             get_pincommand_response,
+                             issue_commands,
                              get_brew_state,
                              logger=logger
                              )
@@ -57,13 +58,13 @@ if __name__=="__main__":
 
     factory = get_client_factory()
 
-    test_temp = 33.0
+    test_temp = 60.0
     mashing_temp = 66.6
     strike_temp = 80.0
     mash_out_temp = 78.0
 
-    hlt_setpoint = strike_temp
-    hex_setpoint = mashing_temp
-    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=10)
+    hlt_setpoint = test_temp
+    hex_setpoint = test_temp
+    client = factory(hlt_setpoint, hex_setpoint, loop_delay_seconds=2)
 
     client.run()
