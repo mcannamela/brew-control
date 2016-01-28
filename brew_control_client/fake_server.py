@@ -32,12 +32,13 @@ class FakeServer(object):
         })
 
     def issue_pin_commands(self, commands):
-        for command_word, pin_nr in commands.items():
+        for command_word, pin_nrs in commands.items():
             f = self._get_command_fun(command_word)
-            try:
-                f(pin_nr)
-            except ReservedPinError as e:
-                raise CommandFailed, str(e), sys.exc_info()[2]
+            for pin_nr in pin_nrs:
+                try:
+                    f(pin_nr)
+                except ReservedPinError as e:
+                    raise CommandFailed, str(e), sys.exc_info()[2]
 
     def get_index_str(self):
         return "Welcome to FakeBrew!"
@@ -50,6 +51,9 @@ class FakeServer(object):
 
     def set_digital_state(self, pin_nr, state):
         self._digital_state[pin_nr] = bool(state)
+
+    def get_digital_state(self, pin_nr):
+        return self._digital_state[pin_nr]
 
     def set_pinmode(self, pin_nr, mode):
         self._pinmode[pin_nr] = mode
