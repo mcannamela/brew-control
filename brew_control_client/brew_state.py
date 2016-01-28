@@ -14,7 +14,7 @@ class RawState(object):
         self._state_as_json = state_as_json
 
     def get_digital_state(self):
-        return self._state_as_json[self._DIGITAL_KEY]
+        return map(bool,self._state_as_json[self._DIGITAL_KEY])
 
     def get_analog_state(self):
         return self._state_as_json[self._ANALOG_KEY]
