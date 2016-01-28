@@ -12,14 +12,15 @@ class InterlockError(RuntimeError):
 
 
 class FlowrateInterlock(Interlock):
-    def __init__(self, flowrate_threshold):
-        self._flowrate_threshold = flowrate_threshold
+    def __init__(self, low_flowrate_threshold, high_flowrate_threshold):
+        self._low_flowrate_threshold = low_flowrate_threshold
+        self._high_flowrate_threshold = high_flowrate_threshold
 
     def may_actuate(self, brew_state):
         return self._is_flowing(brew_state)
 
     def _is_flowing(self, brew_state):
-        return brew_state.pump_outlet_flowrate >= self._flowrate_threshold
+        return self._low_flowrate_threshold <= brew_state.pump_outlet_flowrate <= self._high_flowrate_threshold
 
 
 class TemperatureInterlock(Interlock):

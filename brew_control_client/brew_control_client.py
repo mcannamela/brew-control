@@ -142,13 +142,16 @@ class BrewControlClientFactory(object):
 
     def _get_hex_interlocks(self):
         return [
-            FlowrateInterlock(self._get_flowrate_threshold()),
+            FlowrateInterlock(self._get_low_flowrate_threshold(), self._get_high_flowrate_threshold()),
             HEXOverheatingInterlock(self._get_low_thermistor_fault_temp(), self._get_hex_overheat_temp()),
             PumpCavitationInterlock(self._get_low_thermistor_fault_temp(), self._get_pump_cavitation_temp())
         ]
 
-    def _get_flowrate_threshold(self):
-        return -1 #1e-2
+    def _get_low_flowrate_threshold(self):
+        return 1e-2
+
+    def _get_high_flowrate_threshold(self):
+        return 10.0
 
     def _get_low_thermistor_fault_temp(self):
         return 5.0

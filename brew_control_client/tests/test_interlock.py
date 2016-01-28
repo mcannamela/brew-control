@@ -41,9 +41,12 @@ class TestHEXOverheatingInterlock(unittest.TestCase):
 
 class TestFlowrateInterlock(unittest.TestCase):
     def setUp(self):
-        self._flowrate_threshold = 2.5
+        self._low_flowrate_threshold = 2.5
+        self._high_flowrate_threshold = 20.5
         self._interlock = FlowrateInterlock(
-            self._flowrate_threshold
+            self._low_flowrate_threshold,
+            self._high_flowrate_threshold,
+
         )
 
         self._brew_state = BrewState(
@@ -58,7 +61,11 @@ class TestFlowrateInterlock(unittest.TestCase):
         )
 
     def test_may_actuate_false_for_low_flow(self):
-        self._brew_state.pump_outlet_flowrate = self._flowrate_threshold - 1e-9
+        self._brew_state.pump_outlet_flowrate = self._low_flowrate_threshold - 1e-9
+        self.assertFalse(self._interlock.may_actuate(self._brew_state))
+
+    def test_may_actuate_false_for_high_flow(self):
+        self._brew_state.pump_outlet_flowrate = self._high_flowrate_threshold + 1e-9
         self.assertFalse(self._interlock.may_actuate(self._brew_state))
 
     def test_may_actuate_true(self):

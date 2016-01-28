@@ -51,71 +51,107 @@ class BrewControlClientTest(unittest.TestCase):
 
     def test_hex_actuates_when_below_setpoint(self):
         self._set_hlt_above_setpoint()
-
-        self._assert_hex_not_actuated()
-        self._assert_hlt_not_actuated()
+        self._assert_hlt_and_hex_off()
 
         brew_state = self.client.execute_loop()
 
-        self._assert_hex_actuated()
-        self._assert_hlt_not_actuated()
+        self._assert_hlt_off_and_hex_on()
 
     def test_hlt_actuates_when_below_setpoint(self):
         self._set_hex_above_setpoint()
 
-        self._assert_hex_not_actuated()
-        self._assert_hlt_not_actuated()
+        self._assert_hlt_and_hex_off()
 
         brew_state = self.client.execute_loop()
 
-        self._assert_hlt_actuated()
-        self._assert_hex_not_actuated()
+        self._assert_hlt_on_and_hex_off()
 
     def test_hex_deactuates_when_above_setpoint(self):
         self._set_hex_above_setpoint()
-        self._set_hex_actuated()
-        self._set_hlt_actuated()
 
+        self._set_hlt_and_hex_actuated_with_confirmation()
+
+        brew_state = self.client.execute_loop()
+
+        self._assert_hlt_on_and_hex_off()
+
+    def test_hlt_deactuates_when_above_setpoint(self):
+        self._set_hlt_above_setpoint()
+
+        self._set_hlt_actuated()
+        self._set_hex_actuated()
         self._assert_hex_actuated()
         self._assert_hlt_actuated()
 
         brew_state = self.client.execute_loop()
 
+        self._assert_hlt_off_and_hex_on()
+
+    def test_hex_deactuates_on_low_hex_thermistor_fault(self):
+        self._set_to_very_low_temp(self.pin_config.HEX_outlet_thermistor_pin)
+        self._check_hex_interlock()
+
+    def test_hex_deactuates_on_low_high_hex_thermistor_fault(self):
+        self._set_to_very_high_temp(self.pin_config.HEX_outlet_thermistor_pin)
+        self._check_hex_interlock()
+
+    def test_hex_deactuates_on_low_hex_interlock_fault(self):
+        self._set_to_very_low_temp(self.pin_config.HEX_interlock_thermistor_pin)
+        self._check_hex_interlock()
+
+    def test_hex_deactuates_on_high_hex_interlock_fault(self):
+        self._set_to_very_high_temp(self.pin_config.HEX_interlock_thermistor_pin)
+        self._check_hex_interlock()
+
+    def test_hex_deactuates_on_low_flowrate_fault(self):
+        self.brew_server.set_interrupt_frequency(self.pin_config.flow_interrupt_pin_index, 1.0)
+        self._check_hex_interlock()
+
+    def test_hex_deactuates_on_high_flowrate_fault(self):
+        self.brew_server.set_interrupt_frequency(self.pin_config.flow_interrupt_pin_index, 5000)
+        self._check_hex_interlock()
+
+    def test_hlt_deactuates_on_low_hlt_thermistor_fault(self):
+        self._set_to_very_low_temp(self.pin_config.HLT_thermistor_pin)
+        self._check_hlt_interlock()
+
+    def test_hlt_deactuates_on_high_hlt_thermistor_fault(self):
+        self._set_to_very_high_temp(self.pin_config.HLT_thermistor_pin)
+        self._check_hlt_interlock()
+
+    def _check_hex_interlock(self):
+        self._set_hlt_and_hex_actuated_with_confirmation()
+        brew_state = self.client.execute_loop()
+        self._assert_hlt_on_and_hex_off()
+
+    def _check_hlt_interlock(self):
+        self._set_hlt_and_hex_actuated_with_confirmation()
+        brew_state = self.client.execute_loop()
+        self._assert_hlt_off_and_hex_on()
+
+    def _assert_hlt_off_and_hex_on(self):
+        self._assert_hlt_not_actuated()
+        self._assert_hex_actuated()
+
+    def _assert_hlt_on_and_hex_off(self):
         self._assert_hlt_actuated()
         self._assert_hex_not_actuated()
+
+    def _assert_hlt_and_hex_off(self):
+        self._assert_hex_not_actuated()
+        self._assert_hlt_not_actuated()
+
+    def _set_hlt_and_hex_actuated_with_confirmation(self):
+        self._set_hex_actuated()
+        self._set_hlt_actuated()
+        self._assert_hex_actuated()
+        self._assert_hlt_actuated()
 
     def _set_hlt_actuated(self):
         self.brew_server.set_digital_state(self.pin_config.HLT_actuation_pin, True)
 
     def _set_hex_actuated(self):
         self.brew_server.set_digital_state(self.pin_config.HEX_actuation_pin, True)
-
-    def test_hlt_deactuates_when_above_setpoint(self):
-        self.fail()
-
-    def test_hex_deactuates_on_low_hex_thermistor_fault(self):
-        self.fail()
-
-    def test_hex_deactuates_on_low_high_hex_thermistor_fault(self):
-        self.fail()
-
-    def test_hex_deactuates_on_low_hex_interlock_fault(self):
-        self.fail()
-
-    def test_hex_deactuates_on_high_hex_interlock_fault(self):
-        self.fail()
-
-    def test_hex_deactuates_on_low_flowrate_fault(self):
-        self.fail()
-
-    def test_hex_deactuates_on_high_flowrate_fault(self):
-        self.fail()
-
-    def test_hlt_deactuates_on_low_hlt_thermistor_fault(self):
-        self.fail()
-
-    def test_hlt_deactuates_on_high_hlt_thermistor_fault(self):
-        self.fail()
 
     def _set_hlt_above_setpoint(self):
         pin = self.pin_config.HLT_thermistor_pin
