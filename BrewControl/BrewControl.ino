@@ -47,19 +47,19 @@ void setup()
   tareLastInterruptTimes();
   delay(100);
 
-  pinMode(INTERRUPT_PINS[0], OUTPUT);
+  pinMode(INTERRUPT_PINS[0], INPUT);
   attachInterrupt(
     digitalPinToInterrupt(INTERRUPT_PINS[0]),
     handleInterruptZero,
     INTERRUPT_TRIGGER
   );
 
-  pinMode(INTERRUPT_PINS[1], OUTPUT);
+  /*pinMode(INTERRUPT_PINS[1], OUTPUT);
   attachInterrupt(
     digitalPinToInterrupt(INTERRUPT_PINS[1]),
     handleInterruptOne,
     INTERRUPT_TRIGGER
-  );
+  );*/
 
   decayMeanInterruptTimes();
 
@@ -84,8 +84,7 @@ void setup()
 
 
 unsigned long last_decay_time = 0;
-
-long decay_interval = 1000;
+unsigned long decay_interval = 1000;
 bool should_decay_and_enforce_timeouts;
 
 void loop()
@@ -97,11 +96,14 @@ void loop()
   /* process incoming connections one at a time forever */
   webserver.processConnection(buff, &buff_len);
 
-  should_decay_and_enforce_timeouts = millis() > last_decay_time + decay_interval;
-  should_decay_and_enforce_timeouts |= millis() < last_decay_time;
-  if ( should_decay_and_enforce_timeouts ){
+  
+  should_decay_and_enforce_timeouts = millis() > (last_decay_time + decay_interval);
+  should_decay_and_enforce_timeouts = should_decay_and_enforce_timeouts || (millis() < last_decay_time);
+  if ( should_decay_and_enforce_timeouts && false){
+    Serial.println("Decay interrupts and enforce timeouts");
     last_decay_time = millis();
     decayMeanInterruptTimes(); 
-    enforceTimeouts();
+    //enforceTimeouts();
   }
+  
 }
