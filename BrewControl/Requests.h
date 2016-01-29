@@ -120,8 +120,8 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 
   //  Serial.println("Init state vars");
   bool digitalState[N_DPINS];
-  double analogState[N_APINS];
-  double meanInterruptTimes[N_INTERRUPT_PINS];
+  float analogState[N_APINS];
+  float meanInterruptTimes[N_INTERRUPT_PINS];
   StaticJsonBuffer<256> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
   JsonArray& digital = root.createNestedArray("digital");
@@ -137,7 +137,14 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 
   //  Serial.println("Encode d");
   for (int i = 0; i < N_DPINS; i++) {
-    digital.add(digitalState[i]);
+    // save some bytes in the json buffer by encoding true->1, false->0
+    if (digitalState[i]){
+      digital.add(1);  
+    }
+    else{
+      digital.add(0);
+    }
+    
   }
 
   //  Serial.println("Encode a");
@@ -147,7 +154,7 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 
   //  Serial.println("Encode i");
   for (int i = 0; i < N_INTERRUPT_PINS; i++) {
-    interrupt.add(1000.0 / meanInterruptTimes[i], 6);
+    interrupt.add(1000.0 / meanInterruptTimes[i], 3);
   }
 
   root.prettyPrintTo(Serial);
