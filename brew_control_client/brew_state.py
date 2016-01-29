@@ -5,9 +5,9 @@ from pin_config import PinConfig
 
 
 class RawState(object):
-    _DIGITAL_KEY = 'digital'
-    _ANALOG_KEY = 'analog'
-    _INTERRUPT_KEY = 'interrupt_frequency'
+    _DIGITAL_KEY = 'd'
+    _ANALOG_KEY = 'a'
+    _INTERRUPT_KEY = 'f_i'
 
 
     def __init__(self, state_as_json):
