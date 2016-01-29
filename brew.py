@@ -79,17 +79,17 @@ if __name__=="__main__":
 
     factory = get_client_factory()
 
-    test_temp = 60.0
+    test_temp = 30.0
     mashing_temp = 66.6
     strike_temp = 80.0
     mash_out_temp = 78.0
 
-    hlt_setpoint = test_temp
+    hlt_setpoint = test_temp + 5
     hex_setpoint = test_temp
     client = factory(
             hlt_setpoint,
             hex_setpoint,
-            loop_delay_seconds=.1,
+            loop_delay_seconds=.5,
             hangover_delay_seconds=10
     )
 
