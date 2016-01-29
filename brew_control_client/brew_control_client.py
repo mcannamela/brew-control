@@ -9,9 +9,23 @@ from controller import BangBangController, extract_hlt_actual, extract_hex_actua
 from interlock import FlowrateInterlock, HEXOverheatingInterlock, PumpCavitationInterlock, HLTThermistorFaultInterlock
 from brew_state import BrewStateProvider
 
+
 class BrewControlClient(object):
 
-    def __init__(self, controllers, get_brew_state_fun, setup_fun, loop_delay_seconds=30, hangover_delay_seconds=60, logger=None):
+    COMM_EXCEPTIONS = (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.Timeout,
+        socket.timeout,
+        socket.error
+    )
+
+    def __init__(self,
+                 controllers,
+                 get_brew_state_fun,
+                 setup_fun,
+                 loop_delay_seconds=30,
+                 hangover_delay_seconds=60,
+                 logger=None):
         self._controllers = controllers
         self._get_brew_state_fun = get_brew_state_fun
         self._setup_fun = setup_fun
@@ -26,7 +40,7 @@ class BrewControlClient(object):
     def execute_loop(self):
         brew_state = self._get_brew_state()
         self._logger.info('\n\n')
-        self._logger.info(80*'-')
+        self._logger.info(80 * '-')
         self._logger.info(repr(brew_state))
         self._logger.info('\n')
         for c in self._controllers:
@@ -42,14 +56,13 @@ class BrewControlClient(object):
                 try:
                     brew_state = self.execute_loop()
                     yield brew_state
-                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, socket.timeout, socket.error) as exc:
+                except self.COMM_EXCEPTIONS as exc:
                     self._handle_communiction_error(exc)
                 else:
                     self._delay_if_necessary()
             except KeyboardInterrupt:
                 self._logger.info("User demands stopping brew.")
                 raise StopIteration
-
 
     def _delay_if_necessary(self):
         t = time.time()
@@ -70,13 +83,13 @@ class BrewControlClient(object):
 
 
 class BrewControlClientFactory(object):
-
     def __init__(self, command_factory, brew_state_factory, brew_server, logger=None):
         self._command_factory = command_factory
         self._brew_state_factory = brew_state_factory
         self._brew_server = brew_server
         self._issue_command_fun = self._brew_server.issue_pin_commands
-        self._get_brew_state_fun = BrewStateProvider(self._brew_state_factory, self._brew_server.get_raw_state).get_brew_state
+        self._get_brew_state_fun = BrewStateProvider(self._brew_state_factory,
+                                                     self._brew_server.get_raw_state).get_brew_state
         self._logger = logger if logger is not None else logging.getLogger('brew_control_client_factory')
 
     def __call__(self, hlt_setpoint, hex_setpoint, loop_delay_seconds=30, hangover_delay_seconds=60):
@@ -122,33 +135,50 @@ class BrewControlClientFactory(object):
         return .5
 
     def _get_hlt_actuator(self):
-        return HLTActuator(self._issue_command_fun,
-                           self._get_command_factory(),
-                           self._get_hlt_interlocks(),
-                           logger=self._logger
-                           )
+        return HLTActuator(
+                self._issue_command_fun,
+                self._get_command_factory(),
+                self._get_hlt_interlocks(),
+                logger=self._logger
+        )
 
     def _get_hex_actuator(self):
-        return HEXActuator(self._issue_command_fun,
-                           self._get_command_factory(),
-                           self._get_hex_interlocks(),
-                           logger=self._logger
-                           )
+        return HEXActuator(
+                self._issue_command_fun,
+                self._get_command_factory(),
+                self._get_hex_interlocks(),
+                logger=self._logger
+        )
 
     def _get_command_factory(self):
         return self._command_factory
 
     def _get_hlt_interlocks(self):
         return [
-            HLTThermistorFaultInterlock(self._get_low_thermistor_fault_temp(),
-                                        self._get_high_hlt_thermistor_fault_temp())
+            HLTThermistorFaultInterlock(
+                    self._get_low_thermistor_fault_temp(),
+                    self._get_high_hlt_thermistor_fault_temp(),
+                    logger=self._logger
+            )
         ]
 
     def _get_hex_interlocks(self):
         return [
-            FlowrateInterlock(self._get_low_flowrate_threshold(), self._get_high_flowrate_threshold(), logger=self._logger),
-            HEXOverheatingInterlock(self._get_low_thermistor_fault_temp(), self._get_hex_overheat_temp(), logger=self._logger),
-            PumpCavitationInterlock(self._get_low_thermistor_fault_temp(), self._get_pump_cavitation_temp(), logger=self._logger)
+            FlowrateInterlock(
+                    self._get_low_flowrate_threshold(),
+                    self._get_high_flowrate_threshold(),
+                    logger=self._logger
+            ),
+            HEXOverheatingInterlock(
+                    self._get_low_thermistor_fault_temp(),
+                    self._get_hex_overheat_temp(),
+                    logger=self._logger
+            ),
+            PumpCavitationInterlock(
+                    self._get_low_thermistor_fault_temp(),
+                    self._get_pump_cavitation_temp(),
+                    logger=self._logger
+            )
         ]
 
     def _get_low_flowrate_threshold(self):
@@ -168,9 +198,3 @@ class BrewControlClientFactory(object):
 
     def _get_pump_cavitation_temp(self):
         return 70.0
-
-
-
-
-
-
