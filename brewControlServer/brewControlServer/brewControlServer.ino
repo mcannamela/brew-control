@@ -85,22 +85,31 @@ void setup() {
 
 
 void loop() {
-	//don't burn the place down
-	loopCounter++;
-	if (loopCounter>=1000){
-		deactuate();
-		loopCounter=0;
-	}
-	
-	hltTemperature = getHltTemperature();
-	mashTemperature = getMashTemperature();
-	fermenterTemperature = getFermenterTemperature();
+  loopCounter++;
+  //don't burn the place down
+  if (loopCounter>=500){
+    digitalWrite(hltActuatorPin, LOW);
+    digitalWrite(mashActuatorPin, LOW);
+    digitalWrite(fermenterActuatorPin, LOW);
+    loopCounter=0;
+  }
 
 	client = server.available();
   
-	if (!client.connected()){ 
-	  printTemperatures();
-	}
+  if (!client.connected()){
+    hltTemperature = getHltTemperature();
+    mashTemperature = getMashTemperature();
+    fermenterTemperature = getFermenterTemperature();
+     		
+    Serial.print("(HLT, MASH, FERM) = ");
+    Serial.print(hltTemperature);
+    Serial.print(", ");
+    Serial.print(mashTemperature);
+    Serial.print(", ");
+    Serial.println(fermenterTemperature);
+    
+    delay(10);
+  }
   
   while (client.connected()) {
       if (client.available()>0){
