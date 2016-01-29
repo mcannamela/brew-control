@@ -58,6 +58,7 @@ class TemperatureInterlock(Interlock):
         may_actuate = self._is_temperature_in_range(brew_state)
         if not may_actuate:
             self._log_fault()
+        return may_actuate
 
     def _is_temperature_in_range(self, brew_state):
         t = self._get_temperature(brew_state)

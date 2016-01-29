@@ -24,7 +24,7 @@ class BrewServerTest(unittest.TestCase):
             CommandWords.SET_PINMODE_IN
         ]
         for c in command_words:
-            self._server.issue_pin_commands({c: self._pin_nr})
+            self._server.issue_pin_commands({c: [self._pin_nr]})
 
     def test_get_index_str(self):
         self.assertTrue(isinstance(self._server.get_index_str(), basestring))
