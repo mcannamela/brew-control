@@ -1,4 +1,5 @@
 import datetime
+import json
 import pytz
 
 from pin_config import PinConfig
@@ -32,6 +33,22 @@ class BrewState(object):
     HLT_ACTUATED = 'HLT_ACTUATED'
     HEX_ACTUATED = 'HEX_ACTUATED'
 
+    DATETIME_FORMAT = "%Y-%m-%d-%H:%M:%S.%f%z"
+
+    @classmethod
+    def build_from_json_str(cls, json_str):
+        d = json.loads(json_str)
+        return cls(
+            d[cls.HLT_TEMP],
+            d[cls.HEX_OUTLET_TEMP],
+            d[cls.HEX_INTERLOCK_TEMP],
+            d[cls.FLOWRATE],
+            d[cls.HLT_ACTUATED],
+            d[cls.HEX_ACTUATED],
+            datetime.strptime(d[cls.TIME], cls.DATETIME_FORMAT),
+        )
+
+
 
     def __init__(self, hlt_temperature, hex_outlet_temperature, hex_interlock_temperature, pump_outlet_flowrate, hlt_actuated, hex_actuated, dtime):
         self.hlt_temperature = hlt_temperature
@@ -46,7 +63,7 @@ class BrewState(object):
 
     def __repr__(self):
         s = '\n'.join([
-            '{}: {}'.format(self.TIME, self.dtime),
+            '{}: {}'.format(self.TIME, self.dtime.strftime(self.DATETIME_FORMAT)),
             '{}: {}'.format(self.HLT_TEMP, self.hlt_temperature),
             '{}: {}'.format(self.HEX_OUTLET_TEMP, self.hex_outlet_temperature),
             '{}: {}'.format(self.HEX_INTERLOCK_TEMP, self.hex_interlock_temperature),
@@ -56,6 +73,16 @@ class BrewState(object):
         ])
 
         return '<BrewState: {}>'.format(s)
+
+    def render_to_json(self):
+        return json.dumps({
+            self.TIME: self.dtime.strftime(self.DATETIME_FORMAT),
+            self.HLT_TEMP: self.hlt_temperature,
+            self.HEX_OUTLET_TEMP: self.hex_outlet_temperature,
+            self.HEX_INTERLOCK_TEMP: self.hex_interlock_temperature,
+            self.FLOWRATE: self.pump_outlet_flowrate,
+            self.HLT_ACTUATED: self.hlt_actuated,
+            self.HEX_ACTUATED: self.hex_actuated})
 
 
 
