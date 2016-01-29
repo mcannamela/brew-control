@@ -31,7 +31,7 @@ const char INTERRUPT_TRIGGER_NAME[] = "RISING";
 
 const int LED_PIN = 9;
 
-const unsigned long INTERLOCK_TIMEOUT = 120000;
+const unsigned long INTERLOCK_TIMEOUT = 60000;
 
 /* CHANGE THIS TO YOUR OWN UNIQUE VALUE.  The MAC number should be
    different from any other devices on your network or you'll have
