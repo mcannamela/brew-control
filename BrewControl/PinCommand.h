@@ -88,8 +88,9 @@ COMMAND_RESULT executeCommand(char* command, int commandLen, char* value){
 
 int enforceTimeouts() {
   int nTimeouts = 0;
+  unsigned long t = millis();
   for (int i = 0; i < N_DPINS; i++) {
-    if (!isPinReserved(i) && isTimedOut(i, millis())) {
+    if (!isPinReserved(i) && isTimedOut(i, t)) {
       setPinLow(i);
       nTimeouts++;
     }
