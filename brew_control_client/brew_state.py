@@ -1,6 +1,7 @@
 import datetime
 import json
 import pytz
+from dateutil import parser
 
 from pin_config import PinConfig
 
@@ -39,13 +40,13 @@ class BrewState(object):
     def build_from_json_str(cls, json_str):
         d = json.loads(json_str)
         return cls(
-            d[cls.HLT_TEMP],
-            d[cls.HEX_OUTLET_TEMP],
-            d[cls.HEX_INTERLOCK_TEMP],
-            d[cls.FLOWRATE],
-            d[cls.HLT_ACTUATED],
-            d[cls.HEX_ACTUATED],
-            datetime.strptime(d[cls.TIME], cls.DATETIME_FORMAT),
+            float(d[cls.HLT_TEMP]),
+            float(d[cls.HEX_OUTLET_TEMP]),
+            float(d[cls.HEX_INTERLOCK_TEMP]),
+            float(d[cls.FLOWRATE]),
+            bool(d[cls.HLT_ACTUATED]),
+            bool(d[cls.HEX_ACTUATED]),
+            parser.parse(d[cls.TIME]),
         )
 
 
