@@ -39,14 +39,17 @@ class BrewControlClient(object):
         self.setup()
         while True:
             try:
-                brew_state = self.execute_loop()
-                yield brew_state
+                try:
+                    brew_state = self.execute_loop()
+                    yield brew_state
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, socket.timeout, socket.error) as exc:
+                    self._handle_communiction_error(exc)
+                else:
+                    self._delay_if_necessary()
             except KeyboardInterrupt:
+                self._logger.info("User demands stopping brew.")
                 raise StopIteration
-            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, socket.timeout, socket.error) as exc:
-                self._handle_communiction_error(exc)
-            else:
-                self._delay_if_necessary()
+
 
     def _delay_if_necessary(self):
         t = time.time()
