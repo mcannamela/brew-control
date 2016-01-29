@@ -60,6 +60,7 @@ class BrewControlClient(object):
     def _handle_communiction_error(self, exc):
         self._logger.error("Trapped ConnectionError or Timeout! Will try to sleep it off: {}".format(exc))
         time.sleep(self._hangover_delay_seconds)
+        self.setup()
 
     def _get_brew_state(self):
         return self._get_brew_state_fun()
