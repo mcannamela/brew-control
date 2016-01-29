@@ -84,8 +84,12 @@ void setup()
 
 
 unsigned long last_decay_time = 0;
-unsigned long decay_interval = 1000;
-bool should_decay_and_enforce_timeouts;
+
+bool should_decay_and_enforce_timeouts(){
+  unsigned long t = millis();
+  bool should_decay = t > (last_decay_time + 1000) || t < last_decay_time;
+  return should_decay;
+}
 
 void loop()
 {
@@ -97,13 +101,10 @@ void loop()
   webserver.processConnection(buff, &buff_len);
 
   
-  should_decay_and_enforce_timeouts = millis() > (last_decay_time + decay_interval);
-  should_decay_and_enforce_timeouts = should_decay_and_enforce_timeouts || (millis() < last_decay_time);
-  if ( should_decay_and_enforce_timeouts && false){
-    Serial.println("Decay interrupts and enforce timeouts");
+  if (should_decay_and_enforce_timeouts()){
     last_decay_time = millis();
     decayMeanInterruptTimes(); 
-    //enforceTimeouts();
+    enforceTimeouts();
   }
   
 }
