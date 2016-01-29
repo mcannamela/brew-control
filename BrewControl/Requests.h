@@ -124,9 +124,9 @@ void stateCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
   float meanInterruptTimes[N_INTERRUPT_PINS];
   StaticJsonBuffer<256> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
-  JsonArray& digital = root.createNestedArray("digital");
-  JsonArray& analog = root.createNestedArray("analog");
-  JsonArray& interrupt = root.createNestedArray("interrupt_frequency");
+  JsonArray& digital = root.createNestedArray("d");
+  JsonArray& analog = root.createNestedArray("a");
+  JsonArray& interrupt = root.createNestedArray("f_i");
 
   //  Serial.println("Read d");
   readDigitalState(digitalState);
