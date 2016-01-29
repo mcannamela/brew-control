@@ -1,2 +1,7 @@
 *~
 *.pyc
+.idea/*
+activate_brew_env
+brew_env/*
+get-pip.py
+/brew_control_client/.idea/*
