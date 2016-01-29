@@ -38,7 +38,7 @@ WebServer webserver(PREFIX, 80);
 
 void setup()
 {
-  Serial.begin(SERIAL_BAUDRATE);
+//  Serial.begin(SERIAL_BAUDRATE);
   Serial.println("BEGIN SETUP");
 
   /* initialize the Ethernet adapter */
