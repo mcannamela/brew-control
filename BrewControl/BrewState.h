@@ -20,7 +20,7 @@ unsigned long getLastWriteTime(int pinNr) {
 
 bool isTimedOut(int pinNr, unsigned long t) {
   unsigned long timeoutTime = getLastWriteTime(pinNr);
-  return t > timeoutTime;
+  return t > timeoutTime + INTERLOCK_TIMEOUT || t < timeoutTime;
 }
 
 void readDigitalState(bool* state_out) {
