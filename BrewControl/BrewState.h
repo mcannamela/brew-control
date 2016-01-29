@@ -24,6 +24,7 @@ bool isTimedOut(int pinNr, unsigned long t) {
 }
 
 void readDigitalState(bool* state_out) {
+//  Serial.println("readDigitalState");
   for (int i = 0; i < N_DPINS; i++) {
     state_out[i] = digitalRead(i);
   }
@@ -31,6 +32,7 @@ void readDigitalState(bool* state_out) {
 
 
 double getMeanAnalogValue(int pinNr) {
+//  Serial.println("    getMeanAnalogValue");
   double meanVal = 0.0;
   int val;
   for (int i = 0; i < N_ADC_READS; i++) {
@@ -48,6 +50,12 @@ double getMeanAnalogValue(int pinNr) {
 void readAnalogState(double* state_out) {
   for (int i = 0; i < N_APINS; i++) {
     state_out[i] = getMeanAnalogValue(i);
+  }
+}
+
+void readAnalogState(float* state_out) {
+  for (int i = 0; i < N_APINS; i++) {
+    state_out[i] = (float) getMeanAnalogValue(i);
   }
 }
 

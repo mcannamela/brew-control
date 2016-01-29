@@ -94,4 +94,10 @@ void readMeanInterruptTimes(double* times_out){
   }
 }
 
+void readMeanInterruptTimes(float* times_out){
+  for (int i=0; i<N_INTERRUPT_PINS; i++){
+    times_out[i] = (float) getMeanInterruptTime(i);
+  }
+}
+
 #endif
