@@ -1,8 +1,8 @@
 import argparse
 from datetime import datetime
 import numpy as np
-import pylab as plb
-from scipy.signal import medfilt
+from matplotlib import pyplot as plt
+#from scipy.signal import medfilt
 
 from brew_control_client.brew_state import BrewState
 
@@ -40,24 +40,24 @@ if __name__=="__main__":
 
     temperatures = np.array(temperatures)
     t = [(dt-dtimes[0]).total_seconds()/60.0 for dt in dtimes]
-    plb.figure(figsize=(14, 9))
-    plb.subplot(2,1,1)
-    plb.plot(t, temperatures[:, 0], 'k', label='HLT')
-    plb.plot(t, temperatures[:, 1], 'g', label='HEX Outlet')
-    plb.plot(t, temperatures[:, 2], 'r', label='HEX Interlock')
-    plb.plot(t, hex_on, 'm', label='HEX On')
-    plb.plot(t, hlt_on, 'c', label='HLT On')
+    plt.figure(figsize=(14, 9))
+    plt.subplot(2,1,1)
+    plt.plot(t, temperatures[:, 0], 'k', label='HLT')
+    plt.plot(t, temperatures[:, 1], 'g', label='HEX Outlet')
+    plt.plot(t, temperatures[:, 2], 'r', label='HEX Interlock')
+    plt.plot(t, hex_on, 'm', label='HEX On')
+    plt.plot(t, hlt_on, 'c', label='HLT On')
 
-    plb.xlabel('time, min')
-    plb.ylabel('temperature, C')
-    plb.title('{}, t0={}'.format(data_filename, dtimes[0]))
-    plb.legend(loc='upper left')
+    plt.xlabel('time, min')
+    plt.ylabel('temperature, C')
+    plt.title('{}, t0={}'.format(data_filename, dtimes[0]))
+    plt.legend(loc='upper left')
 
-    plb.subplot(2,1,2)
-    plb.plot(t, flowrates, 'k', label='Pump Outlet')
-    plb.xlabel('time, min')
-    plb.ylabel('flowrate, L/s')
-    plb.title('{}, t0={}'.format(data_filename, dtimes[0]))
-    plb.legend(loc='upper left')
+    plt.subplot(2,1,2)
+    plt.plot(t, flowrates, 'k', label='Pump Outlet')
+    plt.xlabel('time, min')
+    plt.ylabel('flowrate, L/s')
+    plt.title('{}, t0={}'.format(data_filename, dtimes[0]))
+    plt.legend(loc='upper left')
 
-    plb.show()
+    plt.show()

@@ -1,7 +1,10 @@
 #!/bin/bash
 
+echo "uninstalling potential troublemakers from apt, which must be pip installed later. Must sudo:"
+sudo apt-get -y remove python-numpy
+
 echo "installing system dependencies, must sudo:"
-sudo apt-get install python-traits libfreetype6-dev
+sudo apt-get -y install python-traits libfreetype6-dev python-vtk tcl-vtk
 
 echo "ensure we have the most up to date pip and virtualenv"
 sudo apt-get remove python-pip
@@ -22,6 +25,9 @@ echo "creating and activating virtualenv brew_env"
 virtualenv --system-site-packages brew_env
 source ./brew_env/bin/activate
 ln -s ./brew_env/bin/activate ./activate_brew_env
+
+#stupid virtualenv itself behind in pip
+pip install --upgrade pip
 
 
 pip install -r requirements.txt
