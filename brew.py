@@ -80,12 +80,13 @@ if __name__=="__main__":
     factory = get_client_factory()
 
     test_temp = 30.0
-    mashing_temp = 66.6
+    mashing_temp = 65.0
+    corrected_mash_temp = mashing_temp - 5.0 #thermistor reads 5C low when placed outside the fitting
     strike_temp = 80.0
     mash_out_temp = 78.0
 
-    hlt_setpoint = test_temp + 5
-    hex_setpoint = test_temp
+    hlt_setpoint = strike_temp
+    hex_setpoint = corrected_mash_temp
     client = factory(
             hlt_setpoint,
             hex_setpoint,
