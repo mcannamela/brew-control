@@ -1,7 +1,10 @@
 #!/bin/bash
 
+echo "uninstalling potential troublemakers from apt, which must be pip installed later. Must sudo:"
+sudo apt-get -y remove python-numpy python-six python-mock matplotlib
+
 echo "installing system dependencies, must sudo:"
-sudo apt-get install python-traits libfreetype6-dev
+sudo apt-get install python-traits libfreetype6-dev python-tk
 
 echo "ensure we have the most up to date pip and virtualenv"
 sudo apt-get remove python-pip
