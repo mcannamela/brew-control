@@ -221,3 +221,10 @@ class TestBangBangController(unittest.TestCase):
         self.assertFalse(self._actuator.actuate.called)
 
 
+class TestBangBangControllerInSimulation(unittest.TestCase):
+
+    def test_massless_system(self):
+        self.fail()
+
+    def test_massive_system(self):
+        self.fail()
