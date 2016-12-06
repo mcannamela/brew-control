@@ -70,22 +70,25 @@ class BangBangController(Controller):
     def _should_actuate(self, brew_state):
         actual = self.get_actual(brew_state)
 
-        if self._has_derivative_control():
-            rising_and_dead = self._is_rising(actual) and self._is_in_derivative_tripband(actual)
-            falling_and_dead = self._is_falling(actual) and self._is_in_derivative_tripband(actual)
-            below_derivative_deadband = self._is_below_derivative_deadband(actual)
-            if rising_and_dead:
-                return False
-            elif falling_and_dead or below_derivative_deadband:
+        if self._is_below_deadband(actual):
+            return True
+        elif self._has_derivative_control():
+            falling_and_tripped = self._is_falling(actual) and self._is_in_upper_derivative_tripband(actual)
+            if falling_and_tripped:
                 return True
-
-        below_deadband = self._is_below_deadband(actual)
-        return below_deadband
+        else:
+            return False
 
     def _handle_should_not_actuate(self, brew_state):
         actual = self.get_actual(brew_state)
-        if not self._is_in_deadband(actual):
+        if self._is_above_deadband(actual):
             self._actuator.deactuate(brew_state)
+        elif self._has_derivative_control():
+            rising_and_tripped = self._is_rising(actual) and self._is_in_lower_derivative_tripband(actual)
+            if rising_and_tripped:
+                self._actuator.deactuate(brew_state)
+        else:
+            return
 
     def _is_above_derivative_deadband(self, actual):
         return actual > (self.get_setpoint() + self._get_derivative_tripband_halfwidth())

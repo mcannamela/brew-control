@@ -79,32 +79,72 @@ class TestBangBangController(unittest.TestCase):
                 derivative_tripband_width=self._deadband_width,
             )
 
-    def test_control_actuates_when_actual_less_than_setpoint_without_derivative_control(self):
+    def test_control_actuates_below_deadband_without_derivative_control(self):
         state = self._deadband_lower - self._small
         self._controller.control(state)
-        self._actuator.actuate.assert_called_once_with(state)
+        self._assert_actuated_once(state)
 
-    def test_control_deactuates_when_actual_greater_than_setpoint_without_derivative_control(self):
+    def test_control_deactuates_above_deadband_without_derivative_control(self):
         state = self._deadband_upper + self._small
         self._controller.control(state)
-        self._actuator.deactuate.assert_called_once_with(state)
+        self._assert_deactuated_once(state)
 
     def test_control_neither_actuates_nor_deactuates_in_deadband_without_derivative_control(self):
         state = self._deadband_upper - self._small
         self._controller.control(state)
-        self.assertFalse(self._actuator.actuate.called)
-        self.assertFalse(self._actuator.deactuate.called)
+        self._assert_no_action_taken()
 
         state = self._deadband_lower + self._small
         self._controller.control(state)
-        self.assertFalse(self._actuator.actuate.called)
-        self.assertFalse(self._actuator.deactuate.called)
+        self._assert_no_action_taken()
 
-    def test_control_actuates_when_falling_in_derivative_upper_deadband(self):
-        self.fail()
+    def test_control_actuates_in_derivative_upper_tripband_when_falling(self):
+        self._setup_last_state_for_falling()
+        state = self._setpoint + .5*self._derivative_trip_band_width - self._small
+        self._d_controller.control(state)
+        self._assert_actuated_once(state)
 
-    def test_control_deactuates_when_rising_in_derivative_lower_deadband(self):
-        self.fail()
+    def test_control_does_not_actuate_in_derivative_lower_tripband_when_falling(self):
+        self._setup_last_state_for_falling()
+        state = self._setpoint - .5 * self._derivative_trip_band_width + self._small
+        self._d_controller.control(state)
+        self._assert_no_action_taken()
+
+    def test_control_actuates_below_deadband_when_falling(self):
+        self._setup_last_state_for_falling()
+        state = self._deadband_lower - self._small
+        self._d_controller.control(state)
+        self._assert_actuated_once(state)
+
+    def test_control_actuates_below_deadband_when_rising(self):
+        self._setup_last_state_for_rising()
+        state = self._deadband_lower - self._small
+        self._d_controller.control(state)
+        self._assert_actuated_once(state)
+
+    def test_control_deactuates_when_rising_in_derivative_lower_tripband(self):
+        self._setup_last_state_for_rising()
+        state = self._setpoint - .5 * self._derivative_trip_band_width + self._small
+        self._d_controller.control(state)
+        self._assert_deactuated_once(state)
+
+    def test_control_does_not_deactuate_when_rising_in_derivative_upper_tripband(self):
+        self._setup_last_state_for_rising()
+        state = self._setpoint + .5 * self._derivative_trip_band_width - self._small
+        self._d_controller.control(state)
+        self._assert_no_action_taken()
+
+    def test_control_deactuates_above_deadband_when_falling(self):
+        self._setup_last_state_for_falling()
+        state = self._deadband_upper + self._small
+        self._d_controller.control(state)
+        self._assert_deactuated_once(state)
+
+    def test_control_deactuates_above_deadband_when_rising(self):
+        self._setup_last_state_for_rising()
+        state = self._deadband_upper + self._small
+        self._d_controller.control(state)
+        self._assert_deactuated_once(state)
 
     def test_control_remembers_on_first_call(self):
         c = self._controller
@@ -149,11 +189,35 @@ class TestBangBangController(unittest.TestCase):
         self.assertFalse(self._controller._is_rising(self._brew_state + self._derivative_threshold - self._small))
         self.assertTrue(self._controller._is_rising(self._brew_state + self._derivative_threshold + self._small))
 
+    def _setup_last_state_for_falling(self):
+        last_state = self._setpoint + 1000.0
+        self._d_controller.control(last_state)
+        self._actuator.reset_mock()
+        self._assert_no_action_taken()
+
+    def _setup_last_state_for_rising(self):
+        last_state = self._setpoint - 1000.0
+        self._d_controller.control(last_state)
+        self._actuator.reset_mock()
+        self._assert_no_action_taken()
+
+    def _extract_actual(self, brew_state):
+        return brew_state
+
     def _assert_no_state_remembered(self, c):
         self.assertTrue(c._last_state is None)
         self.assertTrue(c._last_time is None)
 
-    def _extract_actual(self, brew_state):
-        return brew_state
+    def _assert_no_action_taken(self):
+        self.assertFalse(self._actuator.actuate.called)
+        self.assertFalse(self._actuator.deactuate.called)
+
+    def _assert_actuated_once(self, state):
+        self._actuator.actuate.assert_called_once_with(state)
+        self.assertFalse(self._actuator.deactuate.called)
+
+    def _assert_deactuated_once(self, state):
+        self._actuator.deactuate.assert_called_once_with(state)
+        self.assertFalse(self._actuator.actuate.called)
 
 
