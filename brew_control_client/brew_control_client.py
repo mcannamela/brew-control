@@ -117,7 +117,9 @@ class BrewControlClientFactory(object):
         c = BangBangController(
                 self._get_hlt_actuator(),
                 extract_hlt_actual,
-                self._get_deadband_width()
+                self._get_deadband_width(),
+                memory_time_seconds=self._get_memory_time_seconds(),
+                derivative_deadband_width=self._get_derivative_deadband_width()
         )
         c.set_setpoint(setpoint)
         return c
@@ -126,13 +128,12 @@ class BrewControlClientFactory(object):
         c = BangBangController(
                 self._get_hex_actuator(),
                 extract_hex_actual,
-                self._get_deadband_width()
+                self._get_deadband_width(),
+                memory_time_seconds=self._get_memory_time_seconds(),
+                derivative_deadband_width=self._get_derivative_deadband_width()
         )
         c.set_setpoint(setpoint)
         return c
-
-    def _get_deadband_width(self):
-        return .5
 
     def _get_hlt_actuator(self):
         return HLTActuator(
@@ -164,11 +165,11 @@ class BrewControlClientFactory(object):
 
     def _get_hex_interlocks(self):
         return [
-            FlowrateInterlock(
-                    self._get_low_flowrate_threshold(),
-                    self._get_high_flowrate_threshold(),
-                    logger=self._logger
-            ),
+            # FlowrateInterlock(
+            #         self._get_low_flowrate_threshold(),
+            #         self._get_high_flowrate_threshold(),
+            #         logger=self._logger
+            # ),
             HEXOverheatingInterlock(
                     self._get_low_thermistor_fault_temp(),
                     self._get_hex_overheat_temp(),
@@ -198,3 +199,12 @@ class BrewControlClientFactory(object):
 
     def _get_pump_cavitation_temp(self):
         return 70.0
+
+    def _get_deadband_width(self):
+        return .5
+
+    def _get_derivative_deadband_width(self):
+        return 2.0
+
+    def _get_memory_time_seconds(self):
+        return 15.0

@@ -49,9 +49,16 @@ class BrewState(object):
             parser.parse(d[cls.TIME]),
         )
 
-
-
-    def __init__(self, hlt_temperature, hex_outlet_temperature, hex_interlock_temperature, pump_outlet_flowrate, hlt_actuated, hex_actuated, dtime):
+    def __init__(
+            self,
+            hlt_temperature,
+            hex_outlet_temperature,
+            hex_interlock_temperature,
+            pump_outlet_flowrate,
+            hlt_actuated,
+            hex_actuated,
+            dtime
+    ):
         self.hlt_temperature = hlt_temperature
         self.hex_outlet_temperature = hex_outlet_temperature
         self.hex_interlock_temperature = hex_interlock_temperature
