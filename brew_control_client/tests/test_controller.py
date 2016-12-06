@@ -33,11 +33,13 @@ class TestBangBangController(unittest.TestCase):
         state = self._setpoint - 1e-9 - .5*self._deadband_width
         self._controller.control(state)
         self._actuator.actuate.assert_called_once_with(state)
+        self.fail("should actuate one-sided on deadband")
 
     def test_control_deactuates_when_actual_greater_than_setpoint_without_derivative_control(self):
         state = self._setpoint + 1e-9 + .5*self._deadband_width
         self._controller.control(state)
         self._actuator.deactuate.assert_called_once_with(state)
+        self.fail("should deactuate one-sided on deadband")
 
     def test_control_actuates_when_falling_in_derivative_deadband(self):
         self.fail()
