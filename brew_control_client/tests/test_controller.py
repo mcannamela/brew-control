@@ -382,7 +382,7 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         )
 
         self._deadband_width = 1.0
-        self._derivative_tripband_width =.75
+        self._derivative_tripband_width = .6
         self._controller = BangBangController(
             self._plant,
             self._extract_actual,
@@ -404,9 +404,25 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         )
 
     def test_well_mixed_massless_system(self):
-        temperature_difference = .2
+        temperature_difference = self._derivative_tripband_width/3.0
         self._plant.set_mass_flowrate(20.0)
         self._plant.set_mixing_time(1.0)
+        self._plant.set_heating_temperature_difference(temperature_difference)
+        self._plant.set_cooling_temperature_difference(temperature_difference)
+        self._simulation.set_control_interval(.1)
+        self._controller.set_memory_time_seconds(1.0)
+
+        t, temperature, actuated = self._simulation.simulate()
+
+        # pylab.plot(t, temperature, 'k')
+        # pylab.plot(t, actuated, 'r')
+        # pylab.show()
+
+        self._assert_at_least_last_half_in_deadband(temperature, atol=temperature_difference)
+
+    def test_poorly_mixed_massive_system(self):
+        temperature_difference = 1.0
+        self._plant.set_mixing_time(1e6)
         self._plant.set_heating_temperature_difference(temperature_difference)
         self._plant.set_cooling_temperature_difference(temperature_difference)
         self._simulation.set_control_interval(.1)
@@ -419,9 +435,6 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         pylab.show()
 
         self._assert_at_least_last_half_in_deadband(temperature, atol=temperature_difference)
-
-    def test_poorly_mixed_system(self):
-        self.fail()
 
     def _extract_actual(self, brew_state):
         return brew_state
@@ -438,6 +451,6 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         self.assertTrue(np.all(self._in_deadband_mask(temperature[first_in:], atol=atol)))
 
     def _in_deadband_mask(self, temperature, atol=None):
-        t = self._deadband_width*.55 if atol is None else self._deadband_width*.5 + atol
+        t = self._deadband_width*.55 if atol is None else (self._deadband_width*.5 + atol)
         setpoint = self._controller.get_setpoint()
         return np.abs(temperature - setpoint) < t
