@@ -5,7 +5,8 @@ import time
 from brew_control_client.actuator import Actuator
 from brew_control_client.brew_state import BrewState
 from brew_control_client.controller import BangBangController
-
+import numpy as np
+from scipy.ndimage.filters import convolve1d
 
 class TestBangBangController(unittest.TestCase):
 
@@ -221,10 +222,88 @@ class TestBangBangController(unittest.TestCase):
         self.assertFalse(self._actuator.actuate.called)
 
 
+class FakeTankAndHeater(object):
+
+    def __init__(self, mass, mass_flowrate, mixing_time, heating_temperature_difference, cooling_temperature_difference, initial_temperature):
+        self._mass = mass
+        self._mass_flowrate = mass_flowrate
+        self._mixing_time = mixing_time
+        self._heating_temperature_difference = heating_temperature_difference
+        self._cooling_temperature_difference = cooling_temperature_difference
+        self._is_heating = False
+
+        self.time = None
+        self._init_time_mesh()
+        self._delta_t = np.diff(self.time)[0]
+        self.temperature = np.zeros(len(self.time)) + initial_temperature
+        self._idx = np.arnage(len(self.time))
+        self._kernel = None
+
+    def actuate(self, brew_state):
+        self._is_heating = True
+
+    def deactuate(self, brew_state):
+        self._is_heating = False
+
+    def get_output_state(self):
+        return self.temperature[-1]
+
+    def get_input_state(self):
+        if self._is_heating:
+            return self.get_output_state() + self._heating_temperature_difference
+        else:
+            return self.get_output_state() + self._cooling_temperature_difference
+
+    def update(self):
+        self._advect()
+        self._diffuse()
+
+    def get_dwell_time(self):
+        return self._mass_flowrate/self._mass
+
+    def _advect(self):
+        input = self.get_input_state()
+        self.temperature[self._idx] = self.temperature[self._idx - 1]
+        self.temperature[0] = input
+
+    def _diffuse(self):
+        new_temp = convolve1d(self.temperature, self._kernel, mode='reflect')
+        self.temperature = new_temp
+
+    def _init_time_mesh(self):
+        kernel_width = self._get_kernel_width_in_steps()
+        t = np.linspace(0, self.get_dwell_time(), 5*kernel_width)
+        self.time = t
+
+    def _get_kernel_width_in_steps(self):
+        r = (self.get_dwell_time()/self._mixing_time)
+        n = 10*r
+        if n < 1.0:
+            n = 1
+        else:
+            n = max(int(n), 3)
+            if n % 2 == 0:
+                n += 1
+        return n
+
+    def _get_kernel(self):
+        if self._kernel is None:
+            w = self._get_kernel_width_in_steps()
+            if w == 1:
+                self._kernel = np.atleast_1d(np.ones(1))
+            else:
+                t = np.linspace(-w*.5, w*.5, w)*self._delta_t
+                sig = self._delta_t * self.get_dwell_time() / self._mixing_time
+                kern = np.exp(-.5*(t / sig) ** 2)
+                kern /= np.sum(kern)
+                self._kernel = kern
+        return self._kernel
+
+
 class TestBangBangControllerInSimulation(unittest.TestCase):
 
-    def test_massless_system(self):
+    def test_well_mixed_massless_system(self):
         self.fail()
 
-    def test_massive_system(self):
+    def test_poorly_mixed_system(self):
         self.fail()
