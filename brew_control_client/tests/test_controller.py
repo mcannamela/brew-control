@@ -404,10 +404,11 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         )
 
     def test_well_mixed_massless_system(self):
+        temperature_difference = .2
         self._plant.set_mass_flowrate(20.0)
         self._plant.set_mixing_time(1.0)
-        self._plant.set_heating_temperature_difference(.25)
-        self._plant.set_cooling_temperature_difference(.25)
+        self._plant.set_heating_temperature_difference(temperature_difference)
+        self._plant.set_cooling_temperature_difference(temperature_difference)
         self._simulation.set_control_interval(.1)
         self._controller.set_memory_time_seconds(1.0)
 
@@ -417,7 +418,7 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         pylab.plot(t, actuated, 'r')
         pylab.show()
 
-        self._assert_at_least_last_half_in_deadband(temperature)
+        self._assert_at_least_last_half_in_deadband(temperature, atol=temperature_difference)
 
     def test_poorly_mixed_system(self):
         self.fail()
@@ -431,11 +432,12 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
     def _increment_time(self, dt):
         self._time += dt
 
-    def _assert_at_least_last_half_in_deadband(self, temperature):
-        first_in = np.flatnonzero(self._in_deadband_mask(temperature))[0]
+    def _assert_at_least_last_half_in_deadband(self, temperature, atol=None):
+        first_in = np.flatnonzero(self._in_deadband_mask(temperature, atol=atol))[0]
         self.assertLess(first_in, len(temperature) / 2)
-        self.assertTrue(np.all(self._in_deadband_mask(temperature[first_in:])))
+        self.assertTrue(np.all(self._in_deadband_mask(temperature[first_in:], atol=atol)))
 
-    def _in_deadband_mask(self, temperature):
+    def _in_deadband_mask(self, temperature, atol=None):
+        t = self._deadband_width*.55 if atol is None else self._deadband_width*.5 + atol
         setpoint = self._controller.get_setpoint()
-        return np.abs(temperature - setpoint) < .55 * self._deadband_width
+        return np.abs(temperature - setpoint) < t
