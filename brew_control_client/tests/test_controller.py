@@ -388,7 +388,8 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
             self._extract_actual,
             memory_time_seconds=30.0,
             derivative_tripband_width=self._derivative_tripband_width,
-            deadband_width=self._deadband_width
+            deadband_width=self._deadband_width,
+            derivative_threshold=0.1
         )
         self._controller.set_setpoint(0.0)
 
