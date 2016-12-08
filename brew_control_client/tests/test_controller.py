@@ -224,20 +224,34 @@ class TestBangBangController(unittest.TestCase):
 
 class FakeTankAndHeater(object):
 
-    def __init__(self, mass, mass_flowrate, mixing_time, heating_temperature_difference, cooling_temperature_difference, initial_temperature):
+    def __init__(self, mass, mass_flowrate, mixing_time, heating_temperature_difference, cooling_temperature_difference, initial_temperature, control_interval):
         self._mass = mass
         self._mass_flowrate = mass_flowrate
         self._mixing_time = mixing_time
         self._heating_temperature_difference = heating_temperature_difference
         self._cooling_temperature_difference = cooling_temperature_difference
-        self._is_heating = False
+        self._initial_temperature = initial_temperature
+        self._control_interval = control_interval
 
+        self._is_heating = False
         self.time = None
-        self._init_time_mesh()
-        self._delta_t = np.diff(self.time)[0]
-        self.temperature = np.zeros(len(self.time)) + initial_temperature
-        self._idx = np.arnage(len(self.time))
+        self.temperature = None
+        self._idx = None
         self._kernel = None
+
+        self._init_mesh_and_temperature()
+
+    def set_mass(self, mass):
+        self._mass = mass
+        self._init_mesh_and_temperature()
+
+    def set_mass_flowrate(self, mass_flowrate):
+        self._mass_flowrate = mass_flowrate
+        self._init_mesh_and_temperature()
+
+    def set_mixing_time(self, mixing_time):
+        self._mixing_time = mixing_time
+        self._init_mesh_and_temperature()
 
     def actuate(self, brew_state):
         self._is_heating = True
@@ -252,7 +266,7 @@ class FakeTankAndHeater(object):
         if self._is_heating:
             return self.get_output_state() + self._heating_temperature_difference
         else:
-            return self.get_output_state() + self._cooling_temperature_difference
+            return self.get_output_state() - self._cooling_temperature_difference
 
     def update(self):
         self._advect()
@@ -271,9 +285,16 @@ class FakeTankAndHeater(object):
         self.temperature = new_temp
 
     def _init_time_mesh(self):
-        kernel_width = self._get_kernel_width_in_steps()
-        t = np.linspace(0, self.get_dwell_time(), 5*kernel_width)
+        n = int(self.get_dwell_time()/self.delta_t)
+        t = np.linspace(0, self.get_dwell_time(), n)
         self.time = t
+
+    def _compute_delta_t(self):
+        kernel_width = self._get_kernel_width_in_steps()
+        dt_from_mixing = self.get_dwell_time() / (5 * kernel_width)
+        dt_from_control = self._control_interval / 10.0
+        dt = min(dt_from_mixing, dt_from_control)
+        return dt
 
     def _get_kernel_width_in_steps(self):
         r = (self.get_dwell_time()/self._mixing_time)
@@ -292,18 +313,52 @@ class FakeTankAndHeater(object):
             if w == 1:
                 self._kernel = np.atleast_1d(np.ones(1))
             else:
-                t = np.linspace(-w*.5, w*.5, w)*self._delta_t
-                sig = self._delta_t * self.get_dwell_time() / self._mixing_time
+                t = np.linspace(-w*.5, w*.5, w)*self.delta_t
+                sig = self.delta_t * self.get_dwell_time() / self._mixing_time
                 kern = np.exp(-.5*(t / sig) ** 2)
                 kern /= np.sum(kern)
                 self._kernel = kern
         return self._kernel
 
+    def _init_mesh_and_temperature(self):
+        self.delta_t = self._compute_delta_t()
+        self._init_time_mesh()
+        self.temperature = np.zeros(len(self.time)) + self._initial_temperature
+        self._idx = np.aranage(len(self.time))
+        self._kernel = None
+
 
 class TestBangBangControllerInSimulation(unittest.TestCase):
+    def setUp(self):
+        # 20/.067 gives a dwell time of 300s
+        self._plant = FakeTankAndHeater(
+            20.0,
+            .067, # about 1 gal per minute
+            10.0,
+            1.0,
+            1.0,
+            5.0,
+            1.0
+        )
+
+        self._controller = BangBangController(
+            self._plant,
+            self._extract_actual,
+            memory_time_seconds=30.0,
+            derivative_tripband_width=.75,
+            deadband_width=1.0
+        )
+
+        self._time = 0.0
 
     def test_well_mixed_massless_system(self):
         self.fail()
 
     def test_poorly_mixed_system(self):
         self.fail()
+
+    def _extract_actual(self, brew_state):
+        return brew_state
+
+    def _time(self):
+        return self._time

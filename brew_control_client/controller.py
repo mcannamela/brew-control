@@ -3,7 +3,7 @@ import time
 
 class Controller(object):
 
-    def __init__(self, actuator, extract_actual_fun, memory_time_seconds=30.0):
+    def __init__(self, actuator, extract_actual_fun, memory_time_seconds=30.0, timefun=time.time):
 
         self._actuator = actuator
         self._extract_actual_fun = extract_actual_fun
@@ -11,6 +11,7 @@ class Controller(object):
         self._last_state = None
         self._last_time = None
         self._memory_time_seconds = memory_time_seconds
+        self._timefun = timefun
 
     def control(self, brew_state):
         self._remember_state_if_necessary(brew_state)
@@ -32,13 +33,13 @@ class Controller(object):
     def _remember_state_if_necessary(self, brew_state):
         if self._should_remember_state():
             self._last_state = brew_state
-            self._last_time = time.time()
+            self._last_time = self._timefun()
 
     def _should_remember_state(self):
         if self._last_time is None:
             return True
         else:
-            return (time.time() - self._last_time) > self._memory_time_seconds
+            return (self._timefun() - self._last_time) > self._memory_time_seconds
 
     def _actuate(self, brew_state):
         self._actuator.actuate(brew_state)
