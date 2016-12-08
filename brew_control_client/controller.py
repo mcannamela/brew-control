@@ -30,6 +30,9 @@ class Controller(object):
     def get_actual(self, brew_state):
         return self._extract_actual_fun(brew_state)
 
+    def set_memory_time_seconds(self, t):
+        self._memory_time_seconds = t
+
     def _remember_state_if_necessary(self, brew_state):
         if self._should_remember_state():
             self._last_state = brew_state
