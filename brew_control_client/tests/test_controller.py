@@ -280,7 +280,7 @@ class FakeTankAndHeater(object):
         self._diffuse()
 
     def get_dwell_time(self):
-        return self._mass_flowrate/self._mass
+        return self._mass/self._mass_flowrate
 
     def _advect(self):
         input = self.get_input_state()
@@ -346,13 +346,13 @@ class Simulation(object):
     def set_control_interval(self, dt):
         self._control_interval = dt
 
-    def simulate(self):
+    def simulate(self, n_dwell_times=10):
         dt = self._plant.delta_t
-        n = int(10 * self._plant.get_dwell_time() / dt)
+        n = int(n_dwell_times * self._plant.get_dwell_time() / dt)
         n_control = int(self._control_interval / dt)
         t = np.zeros(n)
         temperature = np.zeros(n)
-        actuated = np.zeros(n)
+        actuated = np.zeros(n, dtype=bool)
 
         for i in range(n):
             t[i] = self._get_time_fun()
@@ -421,17 +421,21 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         self._assert_at_least_last_half_in_deadband(temperature, atol=temperature_difference)
 
     def test_poorly_mixed_massive_system(self):
-        temperature_difference = 1.0
+        temperature_difference = .2123
         self._plant.set_mixing_time(1e6)
         self._plant.set_heating_temperature_difference(temperature_difference)
         self._plant.set_cooling_temperature_difference(temperature_difference)
-        self._simulation.set_control_interval(.1)
-        self._controller.set_memory_time_seconds(1.0)
+        self._simulation.set_control_interval(.5)
+        self._controller.set_memory_time_seconds(10.0)
 
-        t, temperature, actuated = self._simulation.simulate()
+        # # with no mixing whatsoever, the derivative control can be very sensitive
+        # self._controller.set_derivative_tripband_width(None)
 
-        pylab.plot(t, temperature, 'k')
+
+        t, temperature, actuated = self._simulation.simulate(n_dwell_times=20)
+
         pylab.plot(t, actuated, 'r')
+        pylab.plot(t, temperature, 'k')
         pylab.show()
 
         self._assert_at_least_last_half_in_deadband(temperature, atol=temperature_difference)

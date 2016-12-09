@@ -71,6 +71,14 @@ class BangBangController(Controller):
 
         super(BangBangController, self).__init__(actuator, extract_actual_fun, memory_time_seconds=memory_time_seconds)
 
+    def set_deadband_width(self, w):
+        self._deadband_width = w
+        self._raise_if_bandwidths_negative_or_derivative_band_too_large()
+
+    def set_derivative_tripband_width(self, w):
+        self._derivative_tripband_width = w
+        self._raise_if_bandwidths_negative_or_derivative_band_too_large()
+
     def _should_actuate(self, brew_state):
         actual = self.get_actual(brew_state)
 
