@@ -119,7 +119,6 @@ class BrewControlClientFactory(object):
                 extract_hlt_actual,
                 self._get_deadband_width(),
                 memory_time_seconds=self._get_memory_time_seconds(),
-                derivative_tripband_width=self._get_derivative_deadband_width()
         )
         c.set_setpoint(setpoint)
         return c
@@ -130,7 +129,9 @@ class BrewControlClientFactory(object):
                 extract_hex_actual,
                 self._get_deadband_width(),
                 memory_time_seconds=self._get_memory_time_seconds(),
-                derivative_tripband_width=self._get_derivative_deadband_width()
+                derivative_tripband_width=self._get_derivative_tripband_width(),
+                derivative_threshold=self._get_derivative_threshold(),
+
         )
         c.set_setpoint(setpoint)
         return c
@@ -201,10 +202,13 @@ class BrewControlClientFactory(object):
         return 70.0
 
     def _get_deadband_width(self):
+        return 1.0
+
+    def _get_derivative_tripband_width(self):
         return .5
 
-    def _get_derivative_deadband_width(self):
-        return 2.0
+    def _get_derivative_threshold(self):
+        return .2
 
     def _get_memory_time_seconds(self):
         return 15.0
