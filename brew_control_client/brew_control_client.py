@@ -136,6 +136,9 @@ class BrewControlClientFactory(object):
         c.set_setpoint(setpoint)
         return c
 
+    def _get_deadband_width(self):
+        return .5
+
     def _get_hlt_actuator(self):
         return HLTActuator(
                 self._issue_command_fun,
