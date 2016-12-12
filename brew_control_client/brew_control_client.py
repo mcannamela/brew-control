@@ -169,11 +169,11 @@ class BrewControlClientFactory(object):
 
     def _get_hex_interlocks(self):
         return [
-            # FlowrateInterlock(
-            #         self._get_low_flowrate_threshold(),
-            #         self._get_high_flowrate_threshold(),
-            #         logger=self._logger
-            # ),
+            FlowrateInterlock(
+                    self._get_low_flowrate_threshold(),
+                    self._get_high_flowrate_threshold(),
+                    logger=self._logger
+            ),
             HEXOverheatingInterlock(
                     self._get_low_thermistor_fault_temp(),
                     self._get_hex_overheat_temp(),
@@ -187,10 +187,15 @@ class BrewControlClientFactory(object):
         ]
 
     def _get_low_flowrate_threshold(self):
-        return 1e-2
+        # 2e-3 L/s is about 1 pulse per second
+        # we'll cut out when we're down to about 1 pulse every 10 seconds
+
+        #measured 9.6e-4 L/s by hand, after 10 min sensor gave 3e-4 +/- 1e-4, so the reliability is not great at low flows
+        return 2e-4
 
     def _get_high_flowrate_threshold(self):
-        return 10.0
+        # flowrate with HLT only fully open is about .08 L/s, so if it doubles that something is wrong.
+        return 0.2
 
     def _get_low_thermistor_fault_temp(self):
         return 5.0
