@@ -84,7 +84,7 @@ if __name__=="__main__":
     strike_temp = 80.0
     mash_out_temp = 78.0
 
-    hlt_setpoint = strike_temp
+    hlt_setpoint = mash_out_temp
     hex_setpoint = mashing_temp
     client = factory(
             hlt_setpoint,

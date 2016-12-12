@@ -205,7 +205,7 @@ class BrewControlClientFactory(object):
         return 1.0
 
     def _get_derivative_tripband_width(self):
-        return .5
+        return None
 
     def _get_derivative_threshold(self):
         return .2
