@@ -26,5 +26,8 @@ virtualenv --system-site-packages brew_env
 source ./brew_env/bin/activate
 ln -s ./brew_env/bin/activate ./activate_brew_env
 
+#stupid virtualenv itself behind in pip
+pip install --upgrade pip
+
 
 pip install -r requirements.txt
