@@ -75,7 +75,7 @@ class BrewState(object):
             '{}: {} C'.format(self.HLT_TEMP, self.hlt_temperature),
             '{}: {} C'.format(self.HEX_OUTLET_TEMP, self.hex_outlet_temperature),
             '{}: {} C'.format(self.HEX_INTERLOCK_TEMP, self.hex_interlock_temperature),
-            '{}: {} L/s'.format(self.FLOWRATE, self.pump_outlet_flowrate),
+            '{}: {} L/min'.format(self.FLOWRATE, self.pump_outlet_flowrate*60.0),
             '{}: {}'.format(self.HLT_ACTUATED, self.hlt_actuated),
             '{}: {}'.format(self.HEX_ACTUATED, self.hex_actuated),
         ])
