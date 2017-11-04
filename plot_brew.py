@@ -6,6 +6,9 @@ from matplotlib import pyplot as plt
 
 from brew_control_client.brew_state import BrewState
 
+import matplotlib
+matplotlib.style.use('bmh')
+
 parser = argparse.ArgumentParser(description='Plot the brewlog.')
 parser.add_argument('brewfile', type=str, nargs=1,
                     help='Name of the brew')
