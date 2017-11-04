@@ -80,7 +80,7 @@ if __name__=="__main__":
     factory = get_client_factory()
 
     test_temp = 30.0
-    mashing_temp = 63.8
+    mashing_temp = 61.0 # actually 63.5, reads 2.5 C when thermistor is rigged on a fitting.
     strike_temp = 80.0
     mash_out_temp = 78.0
 
