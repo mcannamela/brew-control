@@ -21,6 +21,12 @@ THERMISTOR_RESISTANCES = {
     PinConfig.HEX_interlock_thermistor_pin: 1e4,
 }
 
+THERMISTOR_BIASES_CENTIGRADE = {
+    PinConfig.HLT_thermistor_pin: 2.0,
+    PinConfig.HEX_outlet_thermistor_pin: 3.3,
+    PinConfig.HEX_interlock_thermistor_pin: 0,
+}
+
 FLOWRATE_SENSOR_LITERS_PER_PULSE = 2.0619e-3
 
 

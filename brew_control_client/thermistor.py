@@ -2,15 +2,16 @@ import math
 
 
 class Thermistor(object):
-    def __init__(self, divider_resistance):
+    def __init__(self, divider_resistance, bias_centigrade=0.0):
         self._divider_resistance = divider_resistance
+        self._bias_centigrade = bias_centigrade
 
     def get_temperature(self, analog_value):
         thermistor_resistance = self._get_thermistor_resistance(analog_value)
         small = 1e-6
         thermistor_resistance = max(small, thermistor_resistance)
         inverse_temperature_kelvin = 1.0/298.15 + (1.0/3950.0)*math.log(thermistor_resistance/10000.0)
-        temperature_centigrade = 1.0/inverse_temperature_kelvin - 273.15
+        temperature_centigrade = 1.0/inverse_temperature_kelvin - 273.15 + self._bias_centigrade
         return temperature_centigrade
 
     def _get_thermistor_resistance(self, analog_value):
