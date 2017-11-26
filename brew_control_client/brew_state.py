@@ -72,10 +72,10 @@ class BrewState(object):
     def __repr__(self):
         s = '\n'.join([
             '{}: {}'.format(self.TIME, self.dtime.strftime(self.DATETIME_FORMAT)),
-            '{}: {} C'.format(self.HLT_TEMP, self.hlt_temperature),
-            '{}: {} C'.format(self.HEX_OUTLET_TEMP, self.hex_outlet_temperature),
-            '{}: {} C'.format(self.HEX_INTERLOCK_TEMP, self.hex_interlock_temperature),
-            '{}: {} L/min'.format(self.FLOWRATE, self.pump_outlet_flowrate*60.0),
+            '{}: {:.1f} C'.format(self.HLT_TEMP, self.hlt_temperature),
+            '{}: {:.1f} C'.format(self.HEX_OUTLET_TEMP, self.hex_outlet_temperature),
+            '{}: {:.1f} C'.format(self.HEX_INTERLOCK_TEMP, self.hex_interlock_temperature),
+            '{}: {:.2f} L/min'.format(self.FLOWRATE, self.pump_outlet_flowrate*60.0),
             '{}: {}'.format(self.HLT_ACTUATED, self.hlt_actuated),
             '{}: {}'.format(self.HEX_ACTUATED, self.hex_actuated),
         ])

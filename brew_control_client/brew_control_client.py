@@ -68,7 +68,7 @@ class BrewControlClient(object):
         t = time.time()
         corrected_delay = self._loop_delay_seconds - (t - self._last_loop_time)
         if corrected_delay > 1e-6:
-            self._logger.info("Now sleep. Next control action in {} s".format(corrected_delay))
+            self._logger.info("Now sleep. Next control action in {:.3f} s".format(corrected_delay))
             time.sleep(corrected_delay)
         else:
             self._logger.info("Sleep unnecessary. Taking next control action now!")
