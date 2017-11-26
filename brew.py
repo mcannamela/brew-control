@@ -80,12 +80,12 @@ if __name__=="__main__":
     factory = get_client_factory()
 
     test_temp = 30.0
-    mashing_temp = 63.00
+    mashing_temp = 65.20
     strike_temp = 80.0
     mash_out_temp = 78.0
 
-    hlt_setpoint = strike_temp
-    hex_setpoint = mashing_temp
+    hlt_setpoint = strike_temp # reading 2c low
+    hex_setpoint = mashing_temp # reading about .75c low
     client = factory(
             hlt_setpoint,
             hex_setpoint,
