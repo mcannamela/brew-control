@@ -1,8 +1,8 @@
 import sys
 
-from brew_requests import CommandFailed
-from brew_state import RawState
-from pin_command import CommandWords
+from brew_control_client.brew_requests import CommandFailed
+from brew_control_client.brew_state import RawState
+from brew_control_client.pin_command import CommandWords
 
 
 class ReservedPinError(ValueError):
@@ -38,7 +38,7 @@ class FakeServer(object):
                 try:
                     f(pin_nr)
                 except ReservedPinError as e:
-                    raise CommandFailed, str(e), sys.exc_info()[2]
+                    raise CommandFailed(str(e)).with_traceback(sys.exc_info()[2])
 
     def get_index_str(self):
         return "Welcome to FakeBrew!"

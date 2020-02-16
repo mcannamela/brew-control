@@ -1,7 +1,7 @@
 import requests
 
-from brew_state import RawState
-from ml_stripper import strip_tags
+from brew_control_client.brew_state import RawState
+from brew_control_client.ml_stripper import strip_tags
 
 brew_host = '192.168.11.111'
 host_url_head = 'http://'+brew_host

@@ -4,10 +4,10 @@ import socket
 
 import time
 
-from actuator import HLTActuator, HEXActuator
-from controller import BangBangController, extract_hlt_actual, extract_hex_actual
-from interlock import FlowrateInterlock, HEXOverheatingInterlock, PumpCavitationInterlock, HLTThermistorFaultInterlock
-from brew_state import BrewStateProvider
+from brew_control_client.actuator import HLTActuator, HEXActuator
+from brew_control_client.controller import BangBangController, extract_hlt_actual, extract_hex_actual
+from brew_control_client.interlock import FlowrateInterlock, HEXOverheatingInterlock, PumpCavitationInterlock, HLTThermistorFaultInterlock
+from brew_control_client.brew_state import BrewStateProvider
 
 
 class BrewControlClient(object):

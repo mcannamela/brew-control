@@ -1,6 +1,6 @@
 import logging
 
-from interlock import InterlockError
+from brew_control_client.interlock import InterlockError
 
 
 class Actuator(object):

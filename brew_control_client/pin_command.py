@@ -1,4 +1,4 @@
-from pin_config import PinConfig
+from brew_control_client.pin_config import PinConfig
 
 
 class PinCommand(object):

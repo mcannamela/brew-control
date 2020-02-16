@@ -3,7 +3,7 @@ import json
 import pytz
 from dateutil import parser
 
-from pin_config import PinConfig
+from brew_control_client.pin_config import PinConfig
 
 
 class RawState(object):
@@ -16,7 +16,7 @@ class RawState(object):
         self._state_as_json = state_as_json
 
     def get_digital_state(self):
-        return map(bool,self._state_as_json[self._DIGITAL_KEY])
+        return list(map(bool,self._state_as_json[self._DIGITAL_KEY]))
 
     def get_analog_state(self):
         return self._state_as_json[self._ANALOG_KEY]
