@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+six = ">=1.10.0"
+mock = ">=1.3.0"
+requests = "*"
+matplotlib = "*"
+pytz = "*"
+python-dateutil = "*"
+scipy = "*"
+
+[requires]
+python_version = "3.7"

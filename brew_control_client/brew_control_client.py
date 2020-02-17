@@ -169,11 +169,11 @@ class BrewControlClientFactory(object):
 
     def _get_hex_interlocks(self):
         return [
-            FlowrateInterlock(
-                    self._get_low_flowrate_threshold(),
-                    self._get_high_flowrate_threshold(),
-                    logger=self._logger
-            ),
+            # FlowrateInterlock(
+            #         self._get_low_flowrate_threshold(),
+            #         self._get_high_flowrate_threshold(),
+            #         logger=self._logger
+            # ),
             HEXOverheatingInterlock(
                     self._get_low_thermistor_fault_temp(),
                     self._get_hex_overheat_temp(),
