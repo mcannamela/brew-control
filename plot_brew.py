@@ -49,8 +49,11 @@ if __name__ == "__main__":
         flowrates = np.array([s.pump_outlet_flowrate for s in brew_states])
 
         max_temp = np.max(temperatures)
-        hex_on = np.array([s.hex_actuated for s in brew_states]) * .3 * max_temp + .01 * max_temp
-        hlt_on = np.array([s.hlt_actuated for s in brew_states]) * .25 * max_temp + .005 * max_temp
+        hex_on = np.array([s.hex_actuated for s in brew_states])
+        hlt_on = np.array([s.hlt_actuated for s in brew_states])
+
+        hex_on_line = np.array(hex_on) * .3 * max_temp + .01 * max_temp
+        hlt_on_line = np.array(hlt_on) * .25 * max_temp + .005 * max_temp
 
         dtimes = [s.dtime for s in brew_states]
 
@@ -65,8 +68,8 @@ if __name__ == "__main__":
         labels = ['HLT', 'HEX Outlet', 'HEX Interlock']
         for i, (col, label) in enumerate(zip([hlt_col, hex_col, interlock_col], labels)):
             plot_smooth(t, temperatures[:, i], 45, col, label)
-        plt.plot(t, hex_on, 'm', label='HEX On')
-        plt.plot(t, hlt_on, 'c', label='HLT On')
+        plt.plot(t, hex_on_line, 'm', label='HEX On')
+        plt.plot(t, hlt_on_line, 'c', label='HLT On')
 
         ax.fill_between(t, 0, 1, where = hex_on > 0,
                         facecolor='m', alpha=0.2, transform=trans)
