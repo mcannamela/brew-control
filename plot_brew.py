@@ -7,16 +7,19 @@ from matplotlib import pyplot as plt
 from brew_control_client.brew_state import BrewState
 
 import matplotlib
+import matplotlib.transforms as mtransforms
 matplotlib.style.use('bmh')
 
 parser = argparse.ArgumentParser(description='Plot the brewlog.')
 parser.add_argument('brewfile', type=str, nargs=1,
                     help='Name of the brew')
 
+
 def smooth(x, n=45):
     kern = np.exp(-np.linspace(-3, 3, n)**2)
     kern /= np.sum(kern)
     return np.convolve(x, kern, mode='same')
+
 
 def plot_smooth(t, x, n, col, label):
     x_smooth = smooth(x, n)
@@ -27,7 +30,6 @@ def plot_smooth(t, x, n, col, label):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-
 
     def main(data_filename):
         brew_states = []
@@ -55,7 +57,8 @@ if __name__ == "__main__":
         temperatures = np.array(temperatures)
         t = [(dt - dtimes[0]).total_seconds() / 60.0 for dt in dtimes]
         plt.figure(figsize=(14, 9))
-        plt.subplot(2, 1, 1)
+        ax = plt.subplot(2, 1, 1)
+        trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
         hlt_col = 'k'
         hex_col = 'g'
         interlock_col = 'r'
@@ -64,6 +67,11 @@ if __name__ == "__main__":
             plot_smooth(t, temperatures[:, i], 45, col, label)
         plt.plot(t, hex_on, 'm', label='HEX On')
         plt.plot(t, hlt_on, 'c', label='HLT On')
+
+        ax.fill_between(t, 0, 1, where = hex_on > 0,
+                        facecolor='m', alpha=0.2, transform=trans)
+        ax.fill_between(t, 0, 1, where= hlt_on > 0,
+                        facecolor='c', alpha=0.1, transform=trans)
 
         plt.xlabel('time, min')
         plt.ylabel('temperature, C')
