@@ -6,3 +6,5 @@ brew_env/*
 get-pip.py
 /brew_control_client/.idea/*
 .venv/
+/.python-version
+/test.png
