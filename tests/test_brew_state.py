@@ -1,9 +1,9 @@
 import unittest
 
-from brew_state import RawState, BrewState, BrewStateFactory
-from flowrate_sensor import FlowrateSensor
-from pin_config import PinConfig, THERMISTOR_RESISTANCES, FLOWRATE_SENSOR_LITERS_PER_PULSE
-from thermistor import Thermistor
+from brew_control_client.brew_state import RawState, BrewState, BrewStateFactory
+from brew_control_client.flowrate_sensor import FlowrateSensor
+from brew_control_client.pin_config import PinConfig, THERMISTOR_RESISTANCES, FLOWRATE_SENSOR_LITERS_PER_PULSE
+from brew_control_client.thermistor import Thermistor
 
 
 class TestRawState(unittest.TestCase):
@@ -70,7 +70,6 @@ class TestBrewStateFactory(unittest.TestCase):
         self._raw_state = RawState(self._json_state)
 
         self._factory = BrewStateFactory(self._pin_config, self._thermistors_by_pin, self._flowrate_sensor)
-
 
     def test___call__(self):
         brew_state = self._factory(self._raw_state)

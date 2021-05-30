@@ -1,14 +1,13 @@
-import unittest
+import datetime
 from unittest import TestCase
 
-import datetime
 import mock
 
-from actuator import HEXActuator, HLTActuator
-from brew_state import BrewState
-from interlock import Interlock
-from pin_command import CommandFactory
-from pin_config import PinConfig
+from brew_control_client import PinConfig
+from brew_control_client.actuator import HEXActuator, HLTActuator
+from brew_control_client.brew_state import BrewState
+from brew_control_client.interlock import Interlock
+from brew_control_client.pin_command import CommandFactory
 
 
 class BaseHeaterActuatorTestCase(TestCase):
@@ -21,15 +20,14 @@ class BaseHeaterActuatorTestCase(TestCase):
         self._interlocks = [self._interlock, self._other_interlock]
         self._actuator = self.get_actuator_constructor()(self._issue_command, self._command_factory, self._interlocks)
         self._brew_state = BrewState(
-                1.0,
-                2.0,
-                3.0,
-                4.0,
-                False,
-                True,
-                datetime.datetime.now()
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            False,
+            True,
+            datetime.datetime.now()
         )
-
 
     def _assert_command_issued(self, c):
         self._issue_command.assert_called_once_with(c.render_as_request_parameters())
@@ -101,6 +99,7 @@ class TestHEXActuator(BaseHeaterActuatorTestCase):
 
     def _get_exp_off_command(self):
         return self._command_factory.get_hex_off_command()
+
 
 class TestHLTActuator(BaseHeaterActuatorTestCase):
 

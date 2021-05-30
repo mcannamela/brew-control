@@ -1,7 +1,7 @@
 import unittest
 
-from brew_requests import get_reserved_pins, get_interrupt_pins
-from pin_config import PinConfig, THERMISTOR_RESISTANCES, RESERVED_PINS, INTERRUPT_PINS
+from brew_control_client.brew_requests import get_reserved_pins, get_interrupt_pins
+from brew_control_client.pin_config import PinConfig, THERMISTOR_RESISTANCES, RESERVED_PINS, INTERRUPT_PINS
 
 
 class TestPinConfig(unittest.TestCase):
@@ -20,7 +20,8 @@ class TestPinConfig(unittest.TestCase):
 
     def test_flowrate_pin_index_matches(self):
         interrupt_pins = get_interrupt_pins()
-        self.assertEqual(interrupt_pins.index(self._pin_config.flow_interrupt_pin), self._pin_config.flow_interrupt_pin_index)
+        self.assertEqual(interrupt_pins.index(self._pin_config.flow_interrupt_pin),
+                         self._pin_config.flow_interrupt_pin_index)
 
     def test_interrupt_pins_are_reserved(self):
         reserved_pins = set(get_reserved_pins())
@@ -49,6 +50,3 @@ class TestThermistorDividerResistances(unittest.TestCase):
         self.assertTrue(self._pin_config.HLT_thermistor_pin in THERMISTOR_RESISTANCES)
         self.assertTrue(self._pin_config.HEX_outlet_thermistor_pin in THERMISTOR_RESISTANCES)
         self.assertTrue(self._pin_config.HEX_interlock_thermistor_pin in THERMISTOR_RESISTANCES)
-
-
-

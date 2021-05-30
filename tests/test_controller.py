@@ -1,13 +1,14 @@
-import unittest
-import mock
 import time
+import unittest
+
+import mock
+import numpy as np
+import pylab
+from scipy.ndimage.filters import convolve1d
 
 from brew_control_client.actuator import Actuator
-from brew_control_client.brew_state import BrewState
 from brew_control_client.controller import BangBangController
-import numpy as np
-from scipy.ndimage.filters import convolve1d
-import pylab
+
 
 class TestBangBangController(unittest.TestCase):
 
@@ -102,7 +103,7 @@ class TestBangBangController(unittest.TestCase):
 
     def test_control_actuates_in_derivative_upper_tripband_when_falling(self):
         self._setup_last_state_for_falling()
-        state = self._setpoint + .5*self._derivative_trip_band_width - self._small
+        state = self._setpoint + .5 * self._derivative_trip_band_width - self._small
         self._d_controller.control(state)
         self._assert_actuated_once(state)
 
@@ -158,7 +159,7 @@ class TestBangBangController(unittest.TestCase):
     def test_control_does_not_remember_state_before_memory_time(self):
         self._controller.control(self._brew_state)
         new_state = self._brew_state + 1.0
-        time.sleep(self._memory_time_seconds/5.0)
+        time.sleep(self._memory_time_seconds / 5.0)
         self._controller.control(new_state)
         self.assertAlmostEqual(self._brew_state, self._controller._last_state)
 
@@ -225,7 +226,8 @@ class TestBangBangController(unittest.TestCase):
 
 class FakeTankAndHeater(object):
 
-    def __init__(self, mass, mass_flowrate, mixing_time, heating_temperature_difference, cooling_temperature_difference, initial_temperature, control_interval):
+    def __init__(self, mass, mass_flowrate, mixing_time, heating_temperature_difference, cooling_temperature_difference,
+                 initial_temperature, control_interval):
         self._mass = mass
         self._mass_flowrate = mass_flowrate
         self._mixing_time = mixing_time
@@ -280,7 +282,7 @@ class FakeTankAndHeater(object):
         self._diffuse()
 
     def get_dwell_time(self):
-        return self._mass/self._mass_flowrate
+        return self._mass / self._mass_flowrate
 
     def _advect(self):
         input = self.get_input_state()
@@ -292,7 +294,7 @@ class FakeTankAndHeater(object):
         self.temperature = new_temp
 
     def _init_time_mesh(self):
-        n = int(self.get_dwell_time()/self.delta_t)
+        n = int(self.get_dwell_time() / self.delta_t)
         t = np.linspace(0, self.get_dwell_time(), n)
         self.time = t
 
@@ -304,8 +306,8 @@ class FakeTankAndHeater(object):
         return dt
 
     def _get_kernel_width_in_steps(self):
-        r = (self.get_dwell_time()/self._mixing_time)
-        n = 10*r
+        r = (self.get_dwell_time() / self._mixing_time)
+        n = 10 * r
         if n < 1.0:
             n = 1
         else:
@@ -320,9 +322,9 @@ class FakeTankAndHeater(object):
             if w == 1:
                 self._kernel = np.atleast_1d(np.ones(1))
             else:
-                t = np.linspace(-w*.5, w*.5, w)*self.delta_t
+                t = np.linspace(-w * .5, w * .5, w) * self.delta_t
                 sig = self.delta_t * self.get_dwell_time() / self._mixing_time
-                kern = np.exp(-.5*(t / sig) ** 2)
+                kern = np.exp(-.5 * (t / sig) ** 2)
                 kern /= np.sum(kern)
                 self._kernel = kern
         return self._kernel
@@ -373,7 +375,7 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         # 20/.067 gives a dwell time of 300s
         self._plant = FakeTankAndHeater(
             20.0,
-            .067, # about 1 gal per minute
+            .067,  # about 1 gal per minute
             10.0,
             1.0,
             1.0,
@@ -404,7 +406,7 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         )
 
     def test_well_mixed_massless_system(self):
-        temperature_difference = self._derivative_tripband_width/3.0
+        temperature_difference = self._derivative_tripband_width / 3.0
         self._plant.set_mass_flowrate(20.0)
         self._plant.set_mixing_time(1.0)
         self._plant.set_heating_temperature_difference(temperature_difference)
@@ -431,12 +433,11 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         # # with no mixing whatsoever, the derivative control can be very sensitive
         # self._controller.set_derivative_tripband_width(None)
 
-
         t, temperature, actuated = self._simulation.simulate(n_dwell_times=20)
 
-        pylab.plot(t, actuated, 'r')
-        pylab.plot(t, temperature, 'k')
-        pylab.show()
+        # pylab.plot(t, actuated, 'r')
+        # pylab.plot(t, temperature, 'k')
+        # pylab.show()
 
         self._assert_at_least_last_half_in_deadband(temperature, atol=temperature_difference)
 
@@ -455,6 +456,6 @@ class TestBangBangControllerInSimulation(unittest.TestCase):
         self.assertTrue(np.all(self._in_deadband_mask(temperature[first_in:], atol=atol)))
 
     def _in_deadband_mask(self, temperature, atol=None):
-        t = self._deadband_width*.55 if atol is None else (self._deadband_width*.5 + atol)
+        t = self._deadband_width * .55 if atol is None else (self._deadband_width * .5 + atol)
         setpoint = self._controller.get_setpoint()
         return np.abs(temperature - setpoint) < t

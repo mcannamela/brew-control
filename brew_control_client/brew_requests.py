@@ -12,7 +12,7 @@ timeout_seconds = 5.0
 
 
 def get_index_response():
-    return requests.get(host_url_head)
+    return requests.get(host_url_head, timeout=timeout_seconds)
 
 
 def get_state_response():

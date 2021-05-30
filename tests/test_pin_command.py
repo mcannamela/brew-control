@@ -1,6 +1,6 @@
 import unittest
 
-from pin_command import OnCommand, OffCommand, SetupOutputCommand, SetupInputCommand
+from brew_control_client.pin_command import OnCommand, OffCommand, SetupOutputCommand, SetupInputCommand
 
 
 class TestPinCommands(unittest.TestCase):

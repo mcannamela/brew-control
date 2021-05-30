@@ -1,5 +1,5 @@
-from fake_server import FakeServer
-from pin_config import INTERRUPT_PINS, RESERVED_PINS, PinConfig
+from brew_control_client.fake_server import FakeServer
+from brew_control_client.pin_config import INTERRUPT_PINS, RESERVED_PINS, PinConfig
 from tests.test_brew_server import BrewServerTest
 
 

@@ -1,6 +1,6 @@
 import unittest
 
-from brew_requests import (get_index_response,
+from brew_control_client.brew_requests import (get_index_response,
                                                get_reserved_response,
                                                get_state_response,
                                                get_index_str,
@@ -8,7 +8,7 @@ from brew_requests import (get_index_response,
                                                get_pincommand_response,
                                                get_reserved_pins,
                                                get_state)
-from brew_state import RawState
+from brew_control_client.brew_state import RawState
 
 
 class TestResponsesOK(unittest.TestCase):
@@ -44,6 +44,7 @@ class TestGetIndexStr(unittest.TestCase):
     def test_get_index_str(self):
         s = get_index_str()
         self.assertTrue(isinstance(s, basestring))
+
 
 class TestGetReservedAndInterruptPins(unittest.TestCase):
     def test_get_reserved_pins(self):

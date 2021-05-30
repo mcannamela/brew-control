@@ -1,7 +1,7 @@
 import unittest
 
-from interlock import HEXOverheatingInterlock, PumpCavitationInterlock, FlowrateInterlock
-from brew_state import BrewState
+from brew_control_client.brew_state import BrewState
+from brew_control_client.interlock import HEXOverheatingInterlock, PumpCavitationInterlock, FlowrateInterlock
 
 
 class TestHEXOverheatingInterlock(unittest.TestCase):
@@ -9,18 +9,18 @@ class TestHEXOverheatingInterlock(unittest.TestCase):
         self._low_temp_threshold = 1.0
         self._high_temp_threshold = 10.0
         self._interlock = HEXOverheatingInterlock(
-                self._low_temp_threshold,
-                self._high_temp_threshold
+            self._low_temp_threshold,
+            self._high_temp_threshold
         )
 
         self._brew_state = BrewState(
-                1e6,
-                1e6,
-                5.0,
-                6.0,
-                False,
-                False,
-                None
+            1e6,
+            1e6,
+            5.0,
+            6.0,
+            False,
+            False,
+            None
 
         )
 
@@ -50,13 +50,13 @@ class TestFlowrateInterlock(unittest.TestCase):
         )
 
         self._brew_state = BrewState(
-                1e6,
-                1e6,
-                5.0,
-                6.0,
-                False,
-                False,
-                None
+            1e6,
+            1e6,
+            5.0,
+            6.0,
+            False,
+            False,
+            None
 
         )
 
@@ -80,18 +80,18 @@ class TestPumpCavitationInterlock(unittest.TestCase):
         self._low_temp_threshold = 1.0
         self._high_temp_threshold = 10.0
         self._interlock = PumpCavitationInterlock(
-                self._low_temp_threshold,
-                self._high_temp_threshold
+            self._low_temp_threshold,
+            self._high_temp_threshold
         )
 
         self._brew_state = BrewState(
-                1e6,
-                5.0,
-                1e6,
-                6.0,
-                False,
-                False,
-                None
+            1e6,
+            5.0,
+            1e6,
+            6.0,
+            False,
+            False,
+            None
 
         )
 

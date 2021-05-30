@@ -1,6 +1,6 @@
 import unittest
 
-from flowrate_sensor import FlowrateSensor
+from brew_control_client import FlowrateSensor
 
 
 class TestFlowrateSensor(unittest.TestCase):

@@ -1,11 +1,13 @@
 import unittest
-from pin_config import PinConfig, THERMISTOR_RESISTANCES, FLOWRATE_SENSOR_LITERS_PER_PULSE, RESERVED_PINS, INTERRUPT_PINS
-from thermistor import Thermistor
-from flowrate_sensor import FlowrateSensor
-from brew_state import BrewStateFactory
-from fake_server import FakeServer
-from pin_command import CommandFactory
+
 from brew_control_client import BrewControlClientFactory
+from brew_control_client.brew_state import BrewStateFactory
+from brew_control_client.fake_server import FakeServer
+from brew_control_client.flowrate_sensor import FlowrateSensor
+from brew_control_client.pin_command import CommandFactory
+from brew_control_client.pin_config import PinConfig, THERMISTOR_RESISTANCES, FLOWRATE_SENSOR_LITERS_PER_PULSE, \
+    RESERVED_PINS, INTERRUPT_PINS
+from brew_control_client.thermistor import Thermistor
 
 
 class BrewControlClientTest(unittest.TestCase):
@@ -15,7 +17,6 @@ class BrewControlClientTest(unittest.TestCase):
         self._analog_value_91_c = 85.0
         self._analog_value_40_c = 355.0
         self._analog_value_1_c = 779.0
-
 
         self.pin_config = PinConfig()
         thermistors_by_pin = {pin: Thermistor(divider_resistance)
@@ -28,16 +29,16 @@ class BrewControlClientTest(unittest.TestCase):
         self.brew_server = FakeServer(RESERVED_PINS, INTERRUPT_PINS)
 
         self.client_factory = BrewControlClientFactory(command_factory,
-                                 self.brew_state_factory,
-                                 self.brew_server,
-                                 )
+                                                       self.brew_state_factory,
+                                                       self.brew_server,
+                                                       )
         self.hlt_setpoint = 75.0
         self.hex_setpoint = 66.6
         self.client = self.client_factory(
-                self.hlt_setpoint,
-                self.hex_setpoint,
-                loop_delay_seconds=.01,
-                hangover_delay_seconds=.1
+            self.hlt_setpoint,
+            self.hex_setpoint,
+            loop_delay_seconds=.01,
+            hangover_delay_seconds=.1
         )
 
         self.client.setup()
@@ -198,4 +199,3 @@ class BrewControlClientTest(unittest.TestCase):
 
     def _get_hlt_actuated(self):
         return self.brew_server.get_digital_state(self.pin_config.HLT_actuation_pin)
-

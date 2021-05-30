@@ -13,4 +13,4 @@ class TestThermistor(unittest.TestCase):
 
     def test_get_temperature(self):
         self.assertAlmostEqual(self._thermistor.get_temperature(self._analog_value), self._exp_temperature)
-        self.assertLess(self._thermistor.get_temperature(self._analog_value+1), self._exp_temperature)
+        self.assertLess(self._thermistor.get_temperature(self._analog_value + 1), self._exp_temperature)

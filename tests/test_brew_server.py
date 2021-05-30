@@ -1,9 +1,9 @@
 import unittest
 
-from brew_server import BrewServer
-from brew_state import RawState
-from pin_command import CommandWords
-from pin_config import PinConfig
+from brew_control_client.brew_server import BrewServer
+from brew_control_client.brew_state import RawState
+from brew_control_client.pin_command import CommandWords
+from brew_control_client.pin_config import PinConfig
 
 
 class BrewServerTest(unittest.TestCase):
@@ -27,11 +27,10 @@ class BrewServerTest(unittest.TestCase):
             self._server.issue_pin_commands({c: [self._pin_nr]})
 
     def test_get_index_str(self):
-        self.assertTrue(isinstance(self._server.get_index_str(), basestring))
+        self.assertTrue(isinstance(self._server.get_index_str(), str))
 
     def test_get_reserved_pins(self):
         self.assertTrue(all([isinstance(n, int) for n in self._server.get_reserved_pins()]))
 
     def test_get_interrupt_pins(self):
         self.assertTrue(all([isinstance(n, int) for n in self._server.get_reserved_pins()]))
-
