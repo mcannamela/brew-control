@@ -43,7 +43,7 @@ class TestGetState(unittest.TestCase):
 class TestGetIndexStr(unittest.TestCase):
     def test_get_index_str(self):
         s = get_index_str()
-        self.assertTrue(isinstance(s, basestring))
+        self.assertTrue(isinstance(s, str))
 
 
 class TestGetReservedAndInterruptPins(unittest.TestCase):
