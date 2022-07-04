@@ -7,14 +7,14 @@ authors = ["Michael Cannamela <m.cannamela@gmail.com>"]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
 matplotlib = "^3.5.2"
-mock = "^4.0.3"
-pytest = "^7.1.2"
 python-dateutil = "^2.8.2"
 pytz = "^2022.1"
 requests = "^2.28.1"
 scipy = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
+mock = "^4.0.3"
+pytest = "^7.1.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
